@@ -4,18 +4,28 @@ import timestampPlugin from './plugin/timestamp'
 const userSchema = new Schema({
     firstname: {
         type: String,
+        required: true, 
+        lowercase: true
     },
     lastname: {
         type: String,
+        required: true, 
+        lowercase: true
     },
     username: {
         type: String,
+        required: true, 
+        lowercase: true
     },
     email: {
         type: String,
         required: true, 
         unique: true,
         lowercase: true
+    },
+    phone: {
+        type: number,
+        unique: true,
     },
     password: { 
         type: String, 
