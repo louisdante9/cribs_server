@@ -8,8 +8,6 @@ import db from './config/db';
 // const routes = require('./routes');
 import { GlobalErrorHandler } from './middlewares';
 
-console.log(config, 'hello there');
-
 const app = express();
 const port = process.env.PORT || 3000;
 
