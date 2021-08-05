@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import timestampPlugin from './plugin/timestamp';
@@ -25,8 +26,9 @@ const userSchema = new Schema({
     lowercase: true,
   },
   phone: {
-    type: Number,
+    type: String,
     unique: true,
+    required: true,
   },
   password: {
     type: String,
@@ -53,6 +55,7 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
 });
 
 const SALT_WORK_FACTOR = 10;

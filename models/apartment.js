@@ -13,8 +13,8 @@ const apartmentSchema = new Schema({
   price: { type: Number, required: true },
   numberUsersOFvisits: { type: Number },
   img: { type: String, required: true },
-  // user: [{type: Schema.Types.ObjectId, ref: 'User'}],
-  // ratings: [{type: Schema.Types.ObjectId, ref: 'User'}],
+  // userId: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
 });
 apartmentSchema.plugin(timestampPlugin);
-module.exports = model('Apartment', apartmentSchema);
+module.exports = model('Apartment', apartmentSchema, 'apartments');
