@@ -5,11 +5,14 @@ import { json, urlencoded } from 'body-parser';
 import { logger } from './utils';
 import config from './config';
 import db from './config/db';
+import { login, register, activateUser } from './controllers/user';
+import { createApartment, getOneApartments } from './controllers/apartment';
+import { createRating } from './controllers/rating';
 // const routes = require('./routes');
 import { GlobalErrorHandler } from './middlewares';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 6000;
 
 app.use(cors());
 app.use(json());
@@ -21,6 +24,27 @@ db(config)
     app.use(GlobalErrorHandler);
     app.get('/', (req, res) => {
       res.send('hello there');
+    });
+    app.post('/register', async (req, res) => {
+      await register(req.body, res);
+    });
+    app.post('/login', async (req, res) => {
+      await login(req.body, res, 'user');
+    });
+
+    app.post('/activate', async (req, res) => {
+      await activateUser(req.body, res);
+    });
+
+    app.post('/apartment', async (req, res) => {
+      await createApartment(req.body, res);
+    });
+    app.get('/apartment/:id', async (req, res) => {
+      await getOneApartments(req, res);
+    });
+
+    app.post('/rating', async (req, res) => {
+      await createRating(req, res);
     });
 
     app.listen(port, (err) => {

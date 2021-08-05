@@ -17,7 +17,7 @@ export const login = async (userCred, res, role) => {
       return res.status(401).send({ message: 'Failed to authenticate user' });
     }
 
-    if (!user.status) {
+    if (!user.activated) {
       return res.status(401).send({
         error: 'You need to activate account pls contact admin for help',
       });
@@ -51,8 +51,8 @@ export const login = async (userCred, res, role) => {
   }
 };
 
-export const register = async (userCred, res, role) => {
-  const { email } = userCred;
+export const register = async (userCred, res) => {
+  const { email, role } = userCred;
   let userObj;
   const userFound = await User.findOne({ email: email.trim().toLowerCase() });
   if (userFound) {
@@ -66,7 +66,6 @@ export const register = async (userCred, res, role) => {
   if (role === 'admin') {
     userObj = {
       ...userCred,
-      role,
       activated: true,
       activationCode: uuidv4(),
       avatar,
@@ -74,7 +73,6 @@ export const register = async (userCred, res, role) => {
   } else if (role === 'agent') {
     userObj = {
       ...userCred,
-      role,
       referralCode: rcg.alpha('lowercase', 12),
       activationCode: uuidv4(),
       avatar,
@@ -82,7 +80,6 @@ export const register = async (userCred, res, role) => {
   } else {
     userObj = {
       ...userCred,
-      role,
       activationCode: uuidv4(),
       avatar,
     };
@@ -90,10 +87,10 @@ export const register = async (userCred, res, role) => {
   const instance = new User(userObj);
   try {
     const user = await instance.save();
-    if (!user) {
-      return res.status(500).send({ message: 'Internal server error' });
-    }
-    return res.status(200).json({ message: 'User was created successfully' });
+    return res.status(200).json({
+      message: 'User was created successfully',
+      user,
+    });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -106,9 +103,9 @@ export const register = async (userCred, res, role) => {
  * @return {void}
  */
 export const activateUser = async (req, res) => {
-  try {
-    const { activationCode } = req.body;
+  const { activationCode } = req;
 
+  try {
     const user = await User.findOne({ activationCode });
     if (!user) {
       return res.status(400).send({ error: 'activate code given is invalid' });
@@ -135,6 +132,7 @@ export const activateUser = async (req, res) => {
         firstname: verifiedUser.firstname,
         lastname: verifiedUser.lastname,
         username: verifiedUser.username,
+        phone: verifiedUser.phone,
         role: verifiedUser.role,
         status: verifiedUser.status,
         avatar: verifiedUser.avatar,

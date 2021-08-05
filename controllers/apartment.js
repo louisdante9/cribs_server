@@ -19,7 +19,7 @@ export const createApartment = async (req, res) => {
     fittings,
     booked,
     price,
-  } = req.body;
+  } = req;
   try {
     const instance = new Apartment({
       img,
@@ -70,7 +70,9 @@ export const getAllApartments = async (req, res) => {
  */
 export const getOneApartments = async (req, res) => {
   try {
-    const transaction = await Apartment.findOne({ _id: req.params.id });
+    const transaction = await Apartment.findOne({
+      _id: req.params.id,
+    }).populate('ratings');
     if (!transaction) {
       return res.status(404).send({ message: 'No apartment found' });
     }

@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import timestampPlugin from './plugin/timesstamp';
@@ -25,8 +26,9 @@ const userSchema = new Schema({
     lowercase: true,
   },
   phone: {
-    type: Number,
+    type: String,
     unique: true,
+    required: true,
   },
   password: {
     type: String,
@@ -46,12 +48,13 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
 });
 
 const SALT_WORK_FACTOR = 10;
 
-// eslint-disable-next-line consistent-return
-userSchema.pre('save', (next) => {
+// eslint-disable-next-line func-names
+userSchema.pre('save', function (next) {
   const user = this;
 
   // only hash the password if it has been modified (or is new)
@@ -72,7 +75,8 @@ userSchema.pre('save', (next) => {
     });
   });
 });
-userSchema.methods.validPassword = (password) => {
+// eslint-disable-next-line func-names
+userSchema.methods.validPassword = function (password) {
   if (!password || !this.password) {
     return false;
   }

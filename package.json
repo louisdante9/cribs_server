@@ -25,7 +25,9 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.28",
     "referral-code-generator": "^1.0.8",
+    "nodemailer": "^6.6.3",
     "uuid": "^8.3.0",
+    "validator": "^13.6.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {

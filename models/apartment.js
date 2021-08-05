@@ -6,15 +6,15 @@ const apartmentSchema = new Schema({
   apartmentType: { type: String, required: true },
   description: { type: String, required: true },
   address: { type: String, required: true },
-  location: { type: String, required: true, default: 'pending' },
+  location: { type: String, required: true },
   noOfRooms: { type: Number, required: true },
   fittings: { type: String, required: true },
-  booked: { type: String },
+  booked: { type: Boolean, default: false },
   price: { type: Number, required: true },
   numberOFvisits: { type: String },
   img: { type: String, required: true },
-  // user: [{type: Schema.Types.ObjectId, ref: 'User'}],
-  // ratings: [{type: Schema.Types.ObjectId, ref: 'User'}],
+  // userId: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
 });
 apartmentSchema.plugin(timestampPlugin);
-module.exports = model('Apartment', apartmentSchema);
+module.exports = model('Apartment', apartmentSchema, 'apartments');
