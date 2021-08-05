@@ -3,7 +3,7 @@ import gravatar from 'gravatar';
 import rcg from 'referral-code-generator';
 import User from '../models/user';
 import Apartment from '../models/apartment';
-import { generateToken } from '../utils';
+import { generateToken, logger } from '../utils';
 
 export const login = async (userCred, res, role) => {
   const { email, password } = userCred;
@@ -18,9 +18,9 @@ export const login = async (userCred, res, role) => {
     }
 
     if (!user.status) {
-      return res
-        .status(401)
-        .send({ message: 'You need to active account with token' });
+      return res.status(401).send({
+        error: 'You need to activate account pls contact admin for help',
+      });
     }
 
     // We will check the role
@@ -41,15 +41,13 @@ export const login = async (userCred, res, role) => {
         lastname: user.lastname,
         username: user.username,
         role: user.role,
-        status: user.status,
+        activated: user.activated,
         avatar: user.avatar,
-        totalInvestment: user.totalInvestment,
-        earnedTotal: user.earnedTotal,
-        accountBal: user.accountBal,
       }),
     });
   } catch (error) {
-    return res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -77,10 +75,9 @@ export const register = async (userCred, res, role) => {
     userObj = {
       ...userCred,
       role,
-      status: true,
-      activated: uuidv4(),
-      avatar,
       referralCode: rcg.alpha('lowercase', 12),
+      activationCode: uuidv4(),
+      avatar,
     };
   } else {
     userObj = {
@@ -98,7 +95,8 @@ export const register = async (userCred, res, role) => {
     }
     return res.status(200).json({ message: 'User was created successfully' });
   } catch (error) {
-    return res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 /**
@@ -108,39 +106,44 @@ export const register = async (userCred, res, role) => {
  * @return {void}
  */
 export const activateUser = async (req, res) => {
-  const { activationCode } = req.body;
+  try {
+    const { activationCode } = req.body;
 
-  const user = await User.findOne({ uuidv4: activationCode });
-  if (!user) {
-    return res.status(400).send({ error: 'activate code given is invalid' });
+    const user = await User.findOne({ activationCode });
+    if (!user) {
+      return res.status(400).send({ error: 'activate code given is invalid' });
+    }
+    const query = {
+      activationCode,
+    };
+    const userObj = {
+      $set: {
+        activated: true,
+      },
+    };
+    const verifiedUser = await User.findOneAndUpdate(query, userObj, {
+      new: true,
+    });
+
+    return res.status(201).send({
+      message: 'Token was verified successfully',
+      verifiedUser,
+      token: generateToken({
+        // eslint-disable-next-line no-underscore-dangle
+        id: verifiedUser._id,
+        email: verifiedUser.email,
+        firstname: verifiedUser.firstname,
+        lastname: verifiedUser.lastname,
+        username: verifiedUser.username,
+        role: verifiedUser.role,
+        status: verifiedUser.status,
+        avatar: verifiedUser.avatar,
+      }),
+    });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
-  const query = {
-    uuidv4: activationCode,
-  };
-  const userObj = {
-    $set: {
-      status: true,
-    },
-  };
-  const verifiedUser = await User.findOneAndUpdate(query, userObj, {
-    new: true,
-  });
-
-  return res.status(201).send({
-    message: 'Token was verified successfully',
-    verifiedUser,
-    token: generateToken({
-      // eslint-disable-next-line no-underscore-dangle
-      id: verifiedUser._id,
-      email: verifiedUser.email,
-      firstname: verifiedUser.firstname,
-      lastname: verifiedUser.lastname,
-      username: verifiedUser.username,
-      role: verifiedUser.role,
-      status: verifiedUser.status,
-      avatar: verifiedUser.avatar,
-    }),
-  });
 };
 
 /**
@@ -157,7 +160,8 @@ export const getAllUsers = async (req, res) => {
       .status(200)
       .json({ clients, message: 'users fetched successfully' });
   } catch (error) {
-    res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -175,7 +179,8 @@ export const getOneUser = async (req, res) => {
     }
     return res.status(201).send({ user, message: 'user found' });
   } catch (error) {
-    return res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -189,14 +194,13 @@ export const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).send({ messsage: 'parcel does not exist' });
+      res.status(404).send({ error: 'parcel does not exist' });
     }
     const delUser = await User.remove({ _id: req.params.id });
-    if (delUser) {
-      res.status(202).send({ message: 'User deleted', parcel });
-    }
+    return res.status(202).send({ message: 'User deleted', delUser });
   } catch (error) {
-    res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -207,32 +211,31 @@ export const deleteUser = async (req, res) => {
  * @return {void}
  */
 export const updateUser = async (req, res) => {
-  const { accountBal, earnedTotal, totalInvestment, planType } = req.body;
+  const { firstname, lastname, phone } = req.body;
   try {
     const user = await User.findOne({ _id: req.params.id });
     if (!user) {
-      return res.status(404).send({ message: 'user not found' });
+      return res.status(404).send({ error: 'user not found' });
     }
     const query = {
       _id: req.params.id,
     };
     const userObj = {
       $set: {
-        accountBal,
-        earnedTotal,
-        totalInvestment,
-        planType,
+        firstname,
+        lastname,
+        phone,
       },
     };
     const updatedUser = await User.findOneAndUpdate(query, userObj, {
       new: true,
     });
-    if (updatedUser) {
-      res
-        .status(201)
-        .send({ message: 'updated was successfully', updatedUser });
-    }
+
+    return res
+      .status(201)
+      .send({ message: 'updated was successfully', updatedUser });
   } catch (error) {
-    res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };

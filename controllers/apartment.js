@@ -1,7 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
-import gravatar from 'gravatar';
 import Apartment from '../models/apartment';
-import logger from '../utils';
+import { logger } from '../utils';
 
 /**
  * create apartment
@@ -9,7 +7,7 @@ import logger from '../utils';
  * @param {any} res response object
  * @return {void}
  */
-export const createTransactions = async (req, res) => {
+export const createApartment = async (req, res) => {
   const {
     img,
     apartmentName,
