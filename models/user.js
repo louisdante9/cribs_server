@@ -32,6 +32,12 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  dob: {
+    type: String,
+  },
+  age: {
+    type: Number,
+  },
   role: {
     type: String,
     required: true,

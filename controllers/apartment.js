@@ -52,10 +52,10 @@ export const createApartment = async (req, res) => {
  */
 export const getAllApartments = async (req, res) => {
   try {
-    const transactions = await Apartment.find();
+    const apartments = await Apartment.find({});
     return res
       .status(200)
-      .json({ transactions, message: 'apartments fetched successfully' });
+      .json({ apartments, message: 'apartments fetched successfully' });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -70,13 +70,13 @@ export const getAllApartments = async (req, res) => {
  */
 export const getOneApartments = async (req, res) => {
   try {
-    const transaction = await Apartment.findOne({ _id: req.params.id });
-    if (!transaction) {
-      return res.status(404).send({ message: 'No apartment found' });
+    const apartment = await Apartment.findOne({ _id: req.params.id });
+    if (!apartment) {
+      return res.status(404).send({ error: 'No apartment found' });
     }
     return res
       .status(200)
-      .json({ transaction, message: 'apartment fetched successfully' });
+      .json({ message: 'apartment fetched successfully', apartment });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -85,63 +85,73 @@ export const getOneApartments = async (req, res) => {
 
 /**
  * update an apartment
- * action can only be done by admin
- * @param {any} req request object
- * @param {any} res response object
+ * @param {any} req object
+ * @param {any} res object
  * @return {void}
  */
-// export const updateTransaction = async (req, res) => {
-//   let { btcAmt, payment, gains, userId } = req.body;
-//   userId = userId[0]._id;
-//   try {
-//     const transaction = await Transaction.findOne({
-//       _id: req.params.id,
-//     }).populate('userId');
-//     if (!transaction) {
-//       return res.status(404).send({ message: 'transaction not found' });
-//     }
-//     const query = {
-//       _id: req.params.id,
-//     };
-//     const transObj = {
-//       $set: {
-//         status: 'approved',
-//       },
-//     };
-//     const updateTransaction = await Transaction.findOneAndUpdate(
-//       query,
-//       transObj,
-//       { new: true }
-//     );
-//     if (updateTransaction) {
-//       res
-//         .status(201)
-//         .send({ message: 'updated was successfully', updateTransaction });
-//       try {
-//         const user = await User.findOne({ _id: userId });
-//         if (!user) {
-//           return res.status(400).send({ message: 'Bad request' });
-//         }
-//         const userObj = {
-//           $set: {
-//             totalInvestment: Number(user.totalInvestment) + Number(btcAmt),
-//             accountBal: Number(user.accountBal) - Number(payment),
-//             earnedTotal: Number(user.earnedTotal) + Number(gains),
-//           },
-//         };
-//         const updateUser = await User.findOneAndUpdate(
-//           { _id: userId },
-//           userObj,
-//           { new: true }
-//         );
-//         if (!updateUser) {
-//           return res.status(400).send({ message: 'Bad request' });
-//         }
-//       } catch (error) {
-//         res.status(400).send({ error });
-//       }
-//     }
-//   } catch (error) {
-//     res.status(400).send({ error });
-//   }
-// };
+export const updateApartment = async (req, res) => {
+  const {
+    apartmentName,
+    apartmentType,
+    description,
+    address,
+    location,
+    noOfRooms,
+    fittings,
+    booked,
+    price,
+  } = req.body;
+  try {
+    const apartment = await Apartment.findOne({ _id: req.params.apartmentId });
+    if (!apartment) {
+      return res.status(404).send({ error: 'apartment not found' });
+    }
+
+    const query = {
+      _id: req.params.apartmentId,
+    };
+    const userObj = {
+      $set: {
+        apartmentName,
+        apartmentType,
+        description,
+        address,
+        location,
+        noOfRooms,
+        fittings,
+        booked,
+        price,
+      },
+    };
+    const updatedApartment = await Apartment.findOneAndUpdate(query, userObj, {
+      new: true,
+    });
+
+    return res
+      .status(201)
+      .send({ message: 'updated was successfully', updatedApartment });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+
+/**
+ * delete a user
+ * @param {any} req user request object
+ * @param {any} res servers response
+ * @return {void}
+ */
+export const deleteApartment = async (req, res) => {
+  try {
+    const apartment = await Apartment.findById(req.params.id);
+    if (!apartment) {
+      res.status(404).send({ error: 'apartment not found' });
+    }
+    const delApartment = await Apartment.remove({ _id: req.params.id });
+    return res.status(202).send({ message: 'Apartment deleted', delApartment });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};

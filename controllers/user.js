@@ -194,7 +194,7 @@ export const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).send({ error: 'parcel does not exist' });
+      res.status(404).send({ error: 'user not found' });
     }
     const delUser = await User.remove({ _id: req.params.id });
     return res.status(202).send({ message: 'User deleted', delUser });
