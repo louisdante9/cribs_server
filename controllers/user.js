@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import gravatar from 'gravatar';
+import rcg from 'referral-code-generator';
 import User from '../models/user';
 import Apartment from '../models/apartment';
 import { generateToken } from '../utils';
@@ -68,15 +69,24 @@ export const register = async (userCred, res, role) => {
     userObj = {
       ...userCred,
       role,
-      status: true,
-      uuidv4: uuidv4(),
+      activated: true,
+      activationCode: uuidv4(),
       avatar,
+    };
+  } else if (role === 'agent') {
+    userObj = {
+      ...userCred,
+      role,
+      status: true,
+      activated: uuidv4(),
+      avatar,
+      referralCode: rcg.alpha('lowercase', 12),
     };
   } else {
     userObj = {
       ...userCred,
       role,
-      uuidv4: uuidv4(),
+      activationCode: uuidv4(),
       avatar,
     };
   }
@@ -115,22 +125,22 @@ export const activateUser = async (req, res) => {
   const verifiedUser = await User.findOneAndUpdate(query, userObj, {
     new: true,
   });
-  if (verifiedUser) {
-    res.status(201).send({
-      message: 'Token was verified successfully',
-      verifiedUser,
-      token: generateToken({
-        id: verifiedUser._id,
-        email: verifiedUser.email,
-        firstname: verifiedUser.firstname,
-        lastname: verifiedUser.lastname,
-        username: verifiedUser.username,
-        role: verifiedUser.role,
-        status: verifiedUser.status,
-        avatar: verifiedUser.avatar,
-      }),
-    });
-  }
+
+  return res.status(201).send({
+    message: 'Token was verified successfully',
+    verifiedUser,
+    token: generateToken({
+      // eslint-disable-next-line no-underscore-dangle
+      id: verifiedUser._id,
+      email: verifiedUser.email,
+      firstname: verifiedUser.firstname,
+      lastname: verifiedUser.lastname,
+      username: verifiedUser.username,
+      role: verifiedUser.role,
+      status: verifiedUser.status,
+      avatar: verifiedUser.avatar,
+    }),
+  });
 };
 
 /**
@@ -142,7 +152,7 @@ export const activateUser = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select('-password');
-    const clients = await users.filter((user) => user.role != 'admin');
+    const clients = await users.filter((user) => user.role !== 'admin');
     return res
       .status(200)
       .json({ clients, message: 'users fetched successfully' });
@@ -163,9 +173,9 @@ export const getOneUser = async (req, res) => {
     if (!user) {
       return res.status(404).send({ message: 'user not found' });
     }
-    res.status(201).send({ user, message: 'user found' });
+    return res.status(201).send({ user, message: 'user found' });
   } catch (error) {
-    res.status(400).send({ error });
+    return res.status(400).send({ error });
   }
 };
 
