@@ -16,7 +16,6 @@ const userSchema = new Schema({
   },
   username: {
     type: String,
-    required: true,
     lowercase: true,
   },
   email: {
@@ -28,7 +27,6 @@ const userSchema = new Schema({
   phone: {
     type: String,
     unique: true,
-    required: true,
   },
   password: {
     type: String,
@@ -55,7 +53,7 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
+  //   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
 });
 
 const SALT_WORK_FACTOR = 10;

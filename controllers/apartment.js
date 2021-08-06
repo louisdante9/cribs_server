@@ -18,7 +18,6 @@ export const createApartment = async (req, res) => {
     location,
     noOfRooms,
     fittings,
-    booked,
     price,
   } = req;
   try {
@@ -31,7 +30,6 @@ export const createApartment = async (req, res) => {
       location,
       noOfRooms,
       fittings,
-      booked,
       price,
     });
     const apartment = await instance.save();

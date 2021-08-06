@@ -17,4 +17,4 @@ const apartmentSchema = new Schema({
   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
 });
 apartmentSchema.plugin(timestampPlugin);
-module.exports = model('Apartment', apartmentSchema, 'apartments');
+module.exports = model('Apartment', apartmentSchema);
