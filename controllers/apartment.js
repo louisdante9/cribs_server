@@ -17,7 +17,6 @@ export const createApartment = async (req, res) => {
     location,
     noOfRooms,
     fittings,
-    booked,
     price,
   } = req;
   try {
@@ -30,7 +29,6 @@ export const createApartment = async (req, res) => {
       location,
       noOfRooms,
       fittings,
-      booked,
       price,
     });
     const apartment = await instance.save();
@@ -68,17 +66,17 @@ export const getAllApartments = async (req, res) => {
  * @param {any} res response object
  * @return {void}
  */
-export const getOneApartments = async (req, res) => {
+export const getOneApartmentsWithRating = async (req, res) => {
   try {
-    const transaction = await Apartment.findOne({
+    const apartment = await Apartment.findOne({
       _id: req.params.id,
-    }).populate('ratings');
-    if (!transaction) {
+    }).populate('ratings', '-_id rating user');
+    if (!apartment) {
       return res.status(404).send({ message: 'No apartment found' });
     }
     return res
       .status(200)
-      .json({ transaction, message: 'apartment fetched successfully' });
+      .json({ apartment, message: 'apartment fetched successfully' });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });

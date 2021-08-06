@@ -6,7 +6,10 @@ import { logger } from './utils';
 import config from './config';
 import db from './config/db';
 import { login, register, activateUser } from './controllers/user';
-import { createApartment, getOneApartments } from './controllers/apartment';
+import {
+  createApartment,
+  getOneApartmentsWithRating,
+} from './controllers/apartment';
 import { createRating } from './controllers/rating';
 // const routes = require('./routes');
 import { GlobalErrorHandler } from './middlewares';
@@ -23,7 +26,7 @@ db(config)
     // app.use('/v1', routes(express));
     app.use(GlobalErrorHandler);
     app.get('/', (req, res) => {
-      res.send('hello there');
+      res.send({ message: 'hello there' });
     });
     app.post('/register', async (req, res) => {
       await register(req.body, res);
@@ -40,7 +43,7 @@ db(config)
       await createApartment(req.body, res);
     });
     app.get('/apartment/:id', async (req, res) => {
-      await getOneApartments(req, res);
+      await getOneApartmentsWithRating(req, res);
     });
 
     app.post('/rating', async (req, res) => {

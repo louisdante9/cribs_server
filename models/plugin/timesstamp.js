@@ -5,7 +5,7 @@ export default function timestamp(schema) {
     updatedAt: Date,
   });
 
-  // Create a pre-save hook
+  // eslint-disable-next-line func-names
   schema.pre('save', function (next) {
     const now = Date.now();
     this.updatedAt = now;
