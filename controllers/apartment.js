@@ -84,6 +84,14 @@ export const getOneApartment = async (req, res) => {
       // eslint-disable-next-line no-underscore-dangle
       .equals(userid);
 
+    // const favourite = new Favourite.find({})
+    // .where('apartment')
+    // // eslint-disable-next-line no-underscore-dangle
+    // .equals(apartment._id)
+    // .where('user')
+    // // eslint-disable-next-line no-underscore-dangle
+    // .equals(userid);
+
     return res.status(200).json({
       message: 'apartment fetched successfully',
       apartment: { ...apartment, visits: visits.length },
