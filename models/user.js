@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import timestampPlugin from './plugin/timesstamp';
+import timestampPlugin from './plugin/timestamp';
 
 const userSchema = new Schema({
   firstname: {
@@ -41,6 +41,7 @@ const userSchema = new Schema({
   role: {
     type: String,
     required: true,
+    default: 'admin',
   },
   referralCode: {
     type: String,
@@ -57,7 +58,7 @@ const userSchema = new Schema({
 const SALT_WORK_FACTOR = 10;
 
 // eslint-disable-next-line consistent-return
-userSchema.pre('save', (next) => {
+userSchema.pre('save', function (next) {
   const user = this;
 
   // only hash the password if it has been modified (or is new)
@@ -78,7 +79,7 @@ userSchema.pre('save', (next) => {
     });
   });
 });
-userSchema.methods.validPassword = (password) => {
+userSchema.methods.validPassword = function (password) {
   if (!password || !this.password) {
     return false;
   }

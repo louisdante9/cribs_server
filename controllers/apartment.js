@@ -1,4 +1,5 @@
 import Apartment from '../models/apartment';
+import History from '../models/history';
 import { logger } from '../utils';
 
 /**
@@ -52,7 +53,7 @@ export const createApartment = async (req, res) => {
  */
 export const getAllApartments = async (req, res) => {
   try {
-    const apartments = await Apartment.find({});
+    const apartments = await Apartment.find();
     return res
       .status(200)
       .json({ apartments, message: 'apartments fetched successfully' });
@@ -68,15 +69,25 @@ export const getAllApartments = async (req, res) => {
  * @param {any} res response object
  * @return {void}
  */
-export const getOneApartments = async (req, res) => {
+export const getOneApartment = async (req, res) => {
+  const { userid } = req.body;
   try {
     const apartment = await Apartment.findOne({ _id: req.params.id });
     if (!apartment) {
       return res.status(404).send({ error: 'No apartment found' });
     }
-    return res
-      .status(200)
-      .json({ message: 'apartment fetched successfully', apartment });
+    const visits = await History.find({})
+      .where('apartment')
+      // eslint-disable-next-line no-underscore-dangle
+      .equals(apartment._id)
+      .where('user')
+      // eslint-disable-next-line no-underscore-dangle
+      .equals(userid);
+
+    return res.status(200).json({
+      message: 'apartment fetched successfully',
+      apartment: { ...apartment, visits: visits.length },
+    });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });

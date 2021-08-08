@@ -66,7 +66,6 @@ export const register = async (userCred, res, role) => {
   if (role === 'admin') {
     userObj = {
       ...userCred,
-      role,
       activated: true,
       activationCode: uuidv4(),
       avatar,
@@ -158,7 +157,7 @@ export const getAllUsers = async (req, res) => {
     const clients = await users.filter((user) => user.role !== 'admin');
     return res
       .status(200)
-      .json({ clients, message: 'users fetched successfully' });
+      .json({ message: 'users fetched successfully', clients });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -239,3 +238,29 @@ export const updateUser = async (req, res) => {
     return res.status(500).send({ error: 'something went wrong' });
   }
 };
+
+/**
+ * get user apartment history
+ * @param {any} req user request object
+ * @param {any} res servers response
+ * @return {void}
+ */
+export const getAllUserApartmentHistory = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).send({ error: 'user not found' });
+    }
+    // eslint-disable-next-line no-underscore-dangle
+    const history = await Apartment.find({}).where('user').equals(user._id);
+    return res
+      .status(200)
+      .json({ message: 'users fetched successfully', history });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+
+// create a referral code
+// validate a refferal code
