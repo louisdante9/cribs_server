@@ -1,7 +1,5 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable consistent-return */
-import Favourite from '../models/favourite';
 import Apartment from '../models/apartment';
+import Favourite from '../models/favourite';
 import { logger } from '../utils';
 
 export const createFavourite = async (req, res) => {

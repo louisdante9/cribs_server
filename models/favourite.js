@@ -6,7 +6,5 @@ const favouriteSchema = new Schema({
   apartment: { type: Schema.Types.ObjectId, ref: 'Apartment' },
 });
 favouriteSchema.plugin(timestampPlugin);
+module.exports = model('Favorite', favouriteSchema);
 
-const Favourite = model('Favorite', favouriteSchema);
-
-export default Favourite;
