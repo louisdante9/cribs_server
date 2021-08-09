@@ -4,6 +4,7 @@
   "description": "this is the server for the rezerv mobile app",
   "main": "index.js",
   "scripts": {
+    
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "dev": "nodemon --delay 500ms ./index --exec babel-node"

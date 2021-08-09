@@ -12,9 +12,16 @@ export const createFavourite = async (req, res) => {
     if (!apartment) {
       return res.status(404).send({ error: 'apartment not found' });
     }
-    const liked = await Favourite.find({ user: userId });
+    const liked = await Favourite.find({})
+      .where('user')
+      .equals(userId)
+      .where('apartment')
+      .equals(apartmentId);
+
     if (liked.length > 0) {
-      return res.status(404).send({ error: 'apartment already rated by user' });
+      return res
+        .status(404)
+        .send({ error: 'apartment already in your favourite' });
     }
     const instance = new Favourite({
       user: userId,
@@ -25,16 +32,33 @@ export const createFavourite = async (req, res) => {
     res.status(200).json({ newFavourite });
   } catch (error) {
     logger.error(error);
-    return res.status(500).send({ error: 'something went wrong' });
+    return res.status(500).send({ error: error.message });
   }
 };
 
 export const getAllFavourites = async (req, res) => {
   try {
-    const favourites = await Favourite.find({ user: req.user._id });
+    const userId = req.body;
+    const favourites = await Favourite.findOne({ userId });
+    if (!favourites) {
+      return res.status(404).send({ error: 'You have no favourite' });
+    }
     res.send(favourites);
   } catch (error) {
     logger.error(error);
-    return res.status(500).send({ error: 'something went wrong' });
+    return res.status(500).send({ error: error.message });
+  }
+};
+
+export const deleteFavouite = async (req, res) => {
+  try {
+    const favourited = await Favourite.findById(req.params.id);
+    if (favourited) {
+      const deleted = await favourited.remove();
+      return res.send({ message: 'Favourite Deleted', favourited: deleted });
+    }
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: error.message });
   }
 };

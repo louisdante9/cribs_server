@@ -82,6 +82,7 @@ export const register = async (userCred, res) => {
       ...userCred,
       activationCode: uuidv4(),
       avatar,
+      referralCode: rcg.alpha('lowercase', 12),
     };
   }
   const instance = new User(userObj);

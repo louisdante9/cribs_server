@@ -4,7 +4,22 @@ import { json, urlencoded } from 'body-parser';
 import { logger } from './utils';
 import config from './config';
 import db from './config/db';
+<<<<<<< HEAD
 import { userRoute, bookingRoute, apartmentRoute } from './middlewares/routes';
+=======
+import { login, register, activateUser } from './controllers/user';
+import {
+  createApartment,
+  getOneApartmentsWithRating,
+} from './controllers/apartment';
+import { createRating } from './controllers/rating';
+import {
+  createFavourite,
+  getAllFavourites,
+  deleteFavouite,
+} from './controllers/favourite';
+// const routes = require('./routes');
+>>>>>>> 27f03c3 (add favourite feature)
 import { GlobalErrorHandler } from './middlewares';
 
 const app = express();

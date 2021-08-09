@@ -53,7 +53,7 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  //   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
+  //   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }]
 });
 
 const SALT_WORK_FACTOR = 10;
