@@ -7,12 +7,19 @@ import {
   updateUser,
   activateUser,
 } from './user';
-import { getAllBookingAsAdmin } from './booking'
+import { getAllBookingAsAdmin } from './booking';
 import {
   createApartment,
   getAllApartments,
   updateApartment,
+  getOneApartment,
 } from './apartment';
+import {
+  createFavourite,
+  deleteFavourite,
+  getAllFavourites,
+} from './favourite';
+import { createRating, getAllRating } from './rating';
 
 export {
   register,
@@ -26,4 +33,10 @@ export {
   getAllApartments,
   updateApartment,
   getAllBookingAsAdmin,
+  getOneApartment,
+  createRating,
+  getAllRating,
+  createFavourite,
+  deleteFavourite,
+  getAllFavourites,
 };

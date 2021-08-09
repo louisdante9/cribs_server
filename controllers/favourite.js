@@ -50,7 +50,7 @@ export const getAllFavourites = async (req, res) => {
   }
 };
 
-export const deleteFavouite = async (req, res) => {
+export const deleteFavourite = async (req, res) => {
   try {
     const favourited = await Favourite.findById(req.params.id);
     if (favourited) {

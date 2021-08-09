@@ -1,5 +1,6 @@
 import Apartment from '../models/apartment';
 import History from '../models/history';
+import Favourite from '../models/favourite';
 import { logger } from '../utils';
 
 /**
@@ -72,7 +73,7 @@ export const getOneApartment = async (req, res) => {
   try {
     const apartment = await Apartment.findOne({
       _id: req.params.id,
-    }).populate('ratings');
+    }).populate('ratings', '-_id rating user');
     if (!apartment) {
       return res.status(404).send({ message: 'No apartment found' });
     }
@@ -84,21 +85,24 @@ export const getOneApartment = async (req, res) => {
       // eslint-disable-next-line no-underscore-dangle
       .equals(userid);
 
-    // const favourite = new Favourite.find({})
-    // .where('apartment')
-    // // eslint-disable-next-line no-underscore-dangle
-    // .equals(apartment._id)
-    // .where('user')
-    // // eslint-disable-next-line no-underscore-dangle
-    // .equals(userid);
+    const favourite = await Favourite.find({})
+      .where('apartment')
+      // eslint-disable-next-line no-underscore-dangle
+      .equals(apartment._id)
+      .where('user')
+      // eslint-disable-next-line no-underscore-dangle
+      .equals(userid);
+
+    // return console.log(favourite, 'favourite');
+    const favourited = favourite.length > 0;
 
     return res.status(200).json({
       message: 'apartment fetched successfully',
-      apartment: { ...apartment, visits: visits.length },
+      data: { apartment, visits: visits.length, favourited },
     });
   } catch (error) {
     logger.error(error);
-    return res.status(500).send({ error: 'something went wrong' });
+    return res.status(500).send({ error: error.message });
   }
 };
 

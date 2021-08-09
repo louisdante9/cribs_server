@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import timestampPlugin from './plugin/timesstamp';
+import timestampPlugin from './plugin/timestamp';
 
 const favouriteSchema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User' },

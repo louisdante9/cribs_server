@@ -1,5 +1,5 @@
-import Rating from '../models/rating';
 import Apartment from '../models/apartment';
+import Rating from '../models/rating';
 // import User from '../models/user';
 import { logger } from '../utils';
 

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import gravatar from 'gravatar';
 import rcg from 'referral-code-generator';
 import User from '../models/user';
-// import Apartment from '../models/apartment';
+import Apartment from '../models/apartment';
 import { generateToken, logger } from '../utils';
 
 export const login = async (userCred, res, role) => {
@@ -262,5 +262,4 @@ export const getAllUserApartmentHistory = async (req, res) => {
   }
 };
 
-// create a referral code
 // validate a refferal code
