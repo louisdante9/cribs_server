@@ -68,3 +68,20 @@ export const checkRole = (roles) => (req, res, next) =>
   !roles.includes(req.decoded.role)
     ? res.status(401).json('Unauthorized')
     : next();
+
+export const isAuth = (req, res, next) => {
+  const { authorization } = req.headers;
+  if (authorization) {
+    const token = authorization.slice(7, authorization.length); // Bearer XXXXXX
+    jwt.verify(token, config.secret, (err, decode) => {
+      if (err) {
+        res.status(401).send({ message: 'Invalid Token' });
+      } else {
+        req.user = decode;
+        next();
+      }
+    });
+  } else {
+    res.status(401).send({ message: 'No Token' });
+  }
+};

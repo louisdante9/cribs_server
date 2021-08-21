@@ -1,5 +1,5 @@
 import expressJoi from 'express-joi-validation';
-import { createApartment, getOneApartment } from '../../controllers';
+import { createRating, getAllRating } from '../../controllers';
 import { user as validate } from '../validators';
 
 const validator = expressJoi.createValidator({
@@ -10,8 +10,8 @@ const validator = expressJoi.createValidator({
 module.exports = (express) => {
   const router = express.Router();
 
-  router.post('/', createApartment);
-  router.get('/:id', getOneApartment);
+  router.post('/', createRating);
+  router.get('/', getAllRating);
 
   return router;
 };
