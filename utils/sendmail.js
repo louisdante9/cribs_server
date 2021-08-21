@@ -10,9 +10,15 @@ dotenv.config();
  * @param {*} host
  * @returns {*} Email notification
  */
-export const sendSuccessfulTransfer = (email, receiverBank,
-  receiverName, receiverAccountNumber, amountToTransfer,
-  balance, username) => {
+export const sendSuccessfulTransfer = (
+  email,
+  receiverBank,
+  receiverName,
+  receiverAccountNumber,
+  amountToTransfer,
+  balance,
+  username
+) => {
   const transporter = nodemailer.createTransport({
     // service: 'gmail',
     host: 'smtp.zoho.com',
@@ -20,8 +26,8 @@ export const sendSuccessfulTransfer = (email, receiverBank,
     secure: true, // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL,
-      pass: process.env.PASSWORD
-    }
+      pass: process.env.PASSWORD,
+    },
   });
 
   const mailOptions = {
@@ -112,11 +118,12 @@ export const sendSuccessfulTransfer = (email, receiverBank,
      </div>
     </div>
   </body>
-    `
+    `,
   };
 
+  // eslint-disable-next-line consistent-return
   transporter.sendMail(mailOptions, (error) => {
-    console.log(mailOptions, 'mailOptions')
+    console.log(mailOptions, 'mailOptions');
     if (error) {
       console.log(error);
       return error;
@@ -135,8 +142,8 @@ export const sendSuccessfulTransfer2 = (email) => {
     service: 'Gmail',
     auth: {
       user: process.env.EMAIL,
-      pass: process.env.PASSWORD
-    }
+      pass: process.env.PASSWORD,
+    },
   });
 
   // setup email data with unicode symbols
@@ -165,10 +172,11 @@ export const sendSuccessfulTransfer2 = (email) => {
         <p><small style="padding-left: 2%; text-align: center; color:white;"> Copyright M.jeck</small></p>
       </div>
     </div>
-  </div> `
+  </div> `,
   };
 
   // send mail with defined transport object
+  // eslint-disable-next-line consistent-return
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       return error;
