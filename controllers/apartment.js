@@ -1,5 +1,6 @@
 import Apartment from '../models/apartment';
 import History from '../models/history';
+import Rating from '../models/rating';
 import Favourite from '../models/favourite';
 import { logger } from '../utils';
 
@@ -12,26 +13,40 @@ import { logger } from '../utils';
 export const createApartment = async (req, res) => {
   const {
     img,
-    apartmentName,
-    apartmentType,
+    propertyName,
+    propertyType,
     description,
     address,
-    location,
+    state,
+    city,
+    zipCode,
     noOfRooms,
-    fittings,
-    price,
-  } = req;
+    noOfBaths,
+    noOfguest,
+    amenities,
+    agentDiscount,
+    pricePerNight,
+    latitude,
+    longitude,
+  } = req.body;
   try {
     const instance = new Apartment({
       img,
-      apartmentName,
-      apartmentType,
+      propertyName,
+      propertyType,
       description,
       address,
-      location,
+      state,
+      city,
+      zipCode,
       noOfRooms,
-      fittings,
-      price,
+      noOfBaths,
+      noOfguest,
+      amenities,
+      pricePerNight,
+      agentDiscount,
+      latitude,
+      longitude,
     });
     const apartment = await instance.save();
     return res
@@ -52,10 +67,22 @@ export const createApartment = async (req, res) => {
  */
 export const getAllApartments = async (req, res) => {
   try {
-    const apartments = await Apartment.find();
-    return res
-      .status(200)
-      .json({ apartments, message: 'apartments fetched successfully' });
+    const ratingAvg = await Rating.aggregate([
+      { $unwind: '$apartment' },
+      {
+        $group: {
+          _id: '$apartment',
+          rating: { $avg: '$rating' },
+        },
+      },
+    ]);
+
+    const listings = await Apartment.find();
+    // console.log(apartments, 'apartment');
+    return res.status(200).json({
+      message: 'apartments fetched successfully',
+      apartments: { listings, ratingAvg },
+    });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -69,10 +96,10 @@ export const getAllApartments = async (req, res) => {
  * @return {void}
  */
 export const getOneApartment = async (req, res) => {
-  const { userid } = req.body;
+  const { id } = req.params;
   try {
     const apartment = await Apartment.findOne({
-      _id: req.params.id,
+      _id: id,
     }).populate('ratings', '-_id rating user');
     if (!apartment) {
       return res.status(404).send({ message: 'No apartment found' });
@@ -83,7 +110,7 @@ export const getOneApartment = async (req, res) => {
       .equals(apartment._id)
       .where('user')
       // eslint-disable-next-line no-underscore-dangle
-      .equals(userid);
+      .equals(id);
 
     const favourite = await Favourite.find({})
       .where('apartment')
@@ -91,7 +118,7 @@ export const getOneApartment = async (req, res) => {
       .equals(apartment._id)
       .where('user')
       // eslint-disable-next-line no-underscore-dangle
-      .equals(userid);
+      .equals(id);
 
     // return console.log(favourite, 'favourite');
     const favourited = favourite.length > 0;
@@ -113,37 +140,19 @@ export const getOneApartment = async (req, res) => {
  * @return {void}
  */
 export const updateApartment = async (req, res) => {
-  const {
-    apartmentName,
-    apartmentType,
-    description,
-    address,
-    location,
-    noOfRooms,
-    fittings,
-    booked,
-    price,
-  } = req.body;
   try {
-    const apartment = await Apartment.findOne({ _id: req.params.apartmentId });
+    const { id } = req.params;
+    const apartment = await Apartment.findOne({ _id: id });
     if (!apartment) {
       return res.status(404).send({ error: 'apartment not found' });
     }
 
     const query = {
-      _id: req.params.apartmentId,
+      _id: id,
     };
     const userObj = {
       $set: {
-        apartmentName,
-        apartmentType,
-        description,
-        address,
-        location,
-        noOfRooms,
-        fittings,
-        booked,
-        price,
+        ...req.body,
       },
     };
     const updatedApartment = await Apartment.findOneAndUpdate(query, userObj, {
@@ -160,7 +169,7 @@ export const updateApartment = async (req, res) => {
 };
 
 /**
- * delete a user
+ * delete an apartment
  * @param {any} req user request object
  * @param {any} res servers response
  * @return {void}
@@ -171,7 +180,7 @@ export const deleteApartment = async (req, res) => {
     if (!apartment) {
       res.status(404).send({ error: 'apartment not found' });
     }
-    const delApartment = await Apartment.remove({ _id: req.params.id });
+    const delApartment = await Apartment.deleteOne({ _id: req.params.id });
     return res.status(202).send({ message: 'Apartment deleted', delApartment });
   } catch (error) {
     logger.error(error);

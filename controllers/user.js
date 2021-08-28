@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import gravatar from 'gravatar';
 import rcg from 'referral-code-generator';
 import User from '../models/user';
-// import Apartment from '../models/apartment';
+import Apartment from '../models/apartment';
 import { generateToken, logger } from '../utils';
 
 export const login = async (userCred, res, role) => {
@@ -11,25 +11,23 @@ export const login = async (userCred, res, role) => {
   try {
     const user = await User.findOne({ email: email.trim().toLowerCase() });
     if (!user) {
-      return res.status(401).send({ message: 'Failed to authenticate user' });
+      return res.status(401).send({ error: 'Failed to authenticate user' });
     }
     if (!user.validPassword(password)) {
-      return res.status(401).send({ message: 'Failed to authenticate user' });
+      return res.status(401).send({ error: 'Failed to authenticate user' });
     }
 
     if (!user.activated) {
       return res.status(401).send({
-        error: 'You need to activate account pls contact admin for help',
+        message: 'You need to activate account pls contact admin for help',
+        error: 'activate account',
       });
     }
 
     // We will check the role
     if (user.role !== role) {
       return res.status(403).json({
-        error: {
-          message: 'Please make sure you are logging in from the right portal.',
-          success: false,
-        },
+        error: 'Please make sure you are logging in from the right portal.',
       });
     }
     return res.status(200).json({
@@ -51,8 +49,8 @@ export const login = async (userCred, res, role) => {
   }
 };
 
-export const register = async (userCred, res) => {
-  const { email, role } = userCred;
+export const register = async (userCred, res, role) => {
+  const { email } = userCred;
   let userObj;
   const userFound = await User.findOne({ email: email.trim().toLowerCase() });
   if (userFound) {
@@ -68,6 +66,7 @@ export const register = async (userCred, res) => {
       ...userCred,
       activated: true,
       activationCode: uuidv4(),
+      role,
       avatar,
     };
   } else if (role === 'agent') {
@@ -75,6 +74,7 @@ export const register = async (userCred, res) => {
       ...userCred,
       referralCode: rcg.alpha('lowercase', 12),
       activationCode: uuidv4(),
+      role,
       avatar,
     };
   } else {
@@ -83,6 +83,7 @@ export const register = async (userCred, res) => {
       activationCode: uuidv4(),
       avatar,
       referralCode: rcg.alpha('lowercase', 12),
+      role,
     };
   }
   const instance = new User(userObj);
@@ -104,12 +105,14 @@ export const register = async (userCred, res) => {
  * @return {void}
  */
 export const activateUser = async (req, res) => {
-  const { activationCode } = req;
-
+  const { activationCode } = req.body;
   try {
     const user = await User.findOne({ activationCode });
     if (!user) {
-      return res.status(400).send({ error: 'activate code given is invalid' });
+      return res.status(400).send({ error: 'activate code is invalid' });
+    }
+    if (user.activated) {
+      return res.status(400).send({ error: 'user already activated' });
     }
     const query = {
       activationCode,
@@ -153,8 +156,8 @@ export const activateUser = async (req, res) => {
  */
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password');
-    const clients = await users.filter((user) => user.role !== 'admin');
+    const clients = await User.find().select('-password');
+    // const clients = await users.filter((user) => user.role !== 'admin');
     return res
       .status(200)
       .json({ message: 'users fetched successfully', clients });
@@ -176,7 +179,7 @@ export const getOneUser = async (req, res) => {
     if (!user) {
       return res.status(404).send({ message: 'user not found' });
     }
-    return res.status(201).send({ user, message: 'user found' });
+    return res.status(200).send({ user, message: 'user found' });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -210,7 +213,6 @@ export const deleteUser = async (req, res) => {
  * @return {void}
  */
 export const updateUser = async (req, res) => {
-  const { firstname, lastname, phone } = req.body;
   try {
     const user = await User.findOne({ _id: req.params.id });
     if (!user) {
@@ -221,9 +223,7 @@ export const updateUser = async (req, res) => {
     };
     const userObj = {
       $set: {
-        firstname,
-        lastname,
-        phone,
+        ...req.body,
       },
     };
     const updatedUser = await User.findOneAndUpdate(query, userObj, {

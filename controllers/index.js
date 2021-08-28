@@ -13,6 +13,7 @@ import {
   getAllApartments,
   updateApartment,
   getOneApartment,
+  deleteApartment,
 } from './apartment';
 import {
   createFavourite,
@@ -32,6 +33,7 @@ export {
   createApartment,
   getAllApartments,
   updateApartment,
+  deleteApartment,
   getAllBookingAsAdmin,
   getOneApartment,
   createRating,
