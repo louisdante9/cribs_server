@@ -13,8 +13,11 @@ import { logger } from '../utils';
 export const createBooking = async (req, res) => {
   try {
     const { apartmentId, userId, startDate, endDate } = req.body;
-    const apartmentFound = Apartment.find({ _id: apartmentId });
-    if (apartmentFound.booked === true) {
+    const apartment = Apartment.find({ _id: apartmentId });
+    if (!apartment) {
+      return res.status(404).send({ error: 'apartment not found' });
+    }
+    if (apartment.booked === true) {
       return res
         .status(409)
         .send({ error: 'Apartment has already been booked' });
@@ -35,10 +38,12 @@ export const createBooking = async (req, res) => {
     const booked = await instance.save();
     const history = await historyInstance.save();
     if (booked && history) {
-      const apartment = await Apartment.findOne({ _id: req.params.id });
-      if (!apartment) {
-        return res.status(404).send({ error: 'apartment not found' });
-      }
+      apartment.bookings.push(instance);
+      apartment.save();
+      // const apartment = await Apartment.findOne({ _id: req.params.id });
+      // if (!apartment) {
+      //   return res.status(404).send({ error: 'apartment not found' });
+      // }
       const updatedApartment = await Apartment.findOneAndUpdate(
         { _id: apartmentId },
         { $set: { booked: true } },

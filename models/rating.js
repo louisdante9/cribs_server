@@ -6,7 +6,7 @@ const ratingSchema = new Schema({
     type: Number,
   },
   user: { type: Schema.Types.ObjectId, ref: 'User' },
-  // apartment: { type: Schema.Types.ObjectId, ref: 'Apartment' },
+  apartment: { type: Schema.Types.ObjectId, ref: 'Apartment' },
 });
 ratingSchema.plugin(timestampPlugin);
 

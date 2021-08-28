@@ -35,6 +35,12 @@ const userSchema = new Schema({
   dob: {
     type: String,
   },
+  state: {
+    type: String,
+  },
+  country: {
+    type: String,
+  },
   age: {
     type: Number,
   },
@@ -53,7 +59,6 @@ const userSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  //   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }]
 });
 
 const SALT_WORK_FACTOR = 10;

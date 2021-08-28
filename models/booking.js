@@ -2,8 +2,8 @@ import { Schema, model } from 'mongoose';
 import timestampPlugin from './plugin/timestamp';
 
 const bookingSchema = new Schema({
-  user: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  apartment: [{ type: Schema.Types.ObjectId, ref: 'Apartment' }],
+  user: { type: Schema.Types.ObjectId, ref: 'User' },
+  apartment: { type: Schema.Types.ObjectId, ref: 'Apartment' },
   startDate: Date,
   endDate: Date,
 });

@@ -1,20 +1,27 @@
 import Joi from '@hapi/joi';
 
+const authUserSchema = Joi.object({
+  email: Joi.string().allow(null, '').email().required().messages({
+    'string.email': '"Main contact email" is not a valid email',
+  }),
+  password: Joi.string().required(),
+});
+
 const createUserSchema = Joi.object({
   firstname: Joi.string(),
   lastname: Joi.string(),
-  username: Joi.string().required(),
+  username: Joi.string(),
   email: Joi.string().allow(null, '').email().required().messages({
     'string.email': '"Main contact email" is not a valid email',
   }),
   role: Joi.string(),
   password: Joi.string().required(),
-  phone: Joi.string()
-    .regex(/^\d{10}$/)
-    .required(),
-
+  phone: Joi.string().regex(/^\d{11}$/),
   activated: Joi.boolean(),
   dob: Joi.string(),
+  country: Joi.string(),
+  state: Joi.string(),
+  age: Joi.number(),
   referralCode: Joi.string(),
   activationCode: Joi.string(),
 });
@@ -42,4 +49,4 @@ const updateUserSchema = Joi.object({
   }),
 });
 
-module.exports = { createUserSchema, updateUserSchema };
+module.exports = { createUserSchema, updateUserSchema, authUserSchema };

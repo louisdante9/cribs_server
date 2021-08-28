@@ -14,7 +14,7 @@ import {
 import { GlobalErrorHandler } from './middlewares';
 
 const app = express();
-const port = process.env.PORT || 6000;
+const port = process.env.PORT || 9000;
 
 app.use(cors());
 app.use(json());
