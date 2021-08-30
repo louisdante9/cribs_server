@@ -42,7 +42,6 @@ export const getAllRating = async (req, res) => {
     const ratings = await Rating.find({})
       .where('apartment')
       .equals(apartmentId);
-    console.log(ratings, 'hello there');
     if (!ratings) return res.status(404).send({ error: 'no ratings found' });
     return res.status(200).send({
       message: 'rating fetched successfully',
