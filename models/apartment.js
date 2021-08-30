@@ -18,7 +18,6 @@ const apartmentSchema = new Schema({
   agentDiscount: { type: Number, required: true },
   numberUsersOFvisits: { type: Number },
   img: [{ type: String }],
-  // userId: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   latitude: { type: String, required: true },
   longitude: { type: String, required: true },
   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],

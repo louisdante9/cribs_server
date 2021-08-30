@@ -78,7 +78,6 @@ export const getAllApartments = async (req, res) => {
     ]);
 
     const listings = await Apartment.find();
-    // console.log(apartments, 'apartment');
     return res.status(200).json({
       message: 'apartments fetched successfully',
       apartments: { listings, ratingAvg },
@@ -96,10 +95,11 @@ export const getAllApartments = async (req, res) => {
  * @return {void}
  */
 export const getOneApartment = async (req, res) => {
-  const { id } = req.params;
+  const { apartmentId, userId } = req.params;
+  console.log(req.params)
   try {
     const apartment = await Apartment.findOne({
-      _id: id,
+      _id: apartmentId,
     }).populate('ratings', '-_id rating user');
     if (!apartment) {
       return res.status(404).send({ message: 'No apartment found' });
@@ -110,7 +110,7 @@ export const getOneApartment = async (req, res) => {
       .equals(apartment._id)
       .where('user')
       // eslint-disable-next-line no-underscore-dangle
-      .equals(id);
+      .equals(userId);
 
     const favourite = await Favourite.find({})
       .where('apartment')
@@ -118,7 +118,7 @@ export const getOneApartment = async (req, res) => {
       .equals(apartment._id)
       .where('user')
       // eslint-disable-next-line no-underscore-dangle
-      .equals(id);
+      .equals(userId);
 
     // return console.log(favourite, 'favourite');
     const favourited = favourite.length > 0;

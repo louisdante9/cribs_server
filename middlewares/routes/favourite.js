@@ -1,22 +1,21 @@
-// import expressJoi from 'express-joi-validation';
 import {
-  deleteFavourite,
   getAllFavourites,
   createFavourite,
+  deleteFavourite,
 } from '../../controllers';
-// import { user as validate } from '../validators';
-
-// const validator = expressJoi.createValidator({
-// passError: true,
-// });
-// import jwtVerify from '../utils/jwtVerify';
 
 module.exports = (express) => {
   const router = express.Router();
 
-  router.post('/', createFavourite);
-  router.get('/', getAllFavourites);
-  router.delete('/:id', deleteFavourite);
+  router.post('/', async (req, res) => {
+    await getAllFavourites(req, res);
+  });
+  router.post('/add-favourite', async (req, res) => {
+    await createFavourite(req, res);
+  });
+  router.delete('/:userId/del/:apartmentId', async (req, res) => {
+    await deleteFavourite(req, res);
+  });
 
   return router;
 };
