@@ -155,9 +155,19 @@ export const activateUser = async (req, res) => {
  * @return {void}
  */
 export const getAllUsers = async (req, res) => {
+  const pageOptions = {
+    page: parseInt(req.query.page, 10) || 0,
+    limit: parseInt(req.query.limit, 10) || 10,
+  };
   try {
-    const clients = await User.find().select('-password');
-    // const clients = await users.filter((user) => user.role !== 'admin');
+    const clients = await User.paginate(
+      {},
+      {
+        offset: pageOptions.page * pageOptions.limit,
+        limit: pageOptions.limit,
+        select: '-password',
+      }
+    );
     return res
       .status(200)
       .json({ message: 'users fetched successfully', clients });

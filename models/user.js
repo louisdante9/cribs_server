@@ -1,6 +1,7 @@
 /* eslint-disable consistent-return */
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import mongoosePaginate from 'mongoose-paginate';
 import timestampPlugin from './plugin/timestamp';
 
 const userSchema = new Schema({
@@ -93,6 +94,7 @@ userSchema.methods.validPassword = function (password) {
 };
 
 userSchema.plugin(timestampPlugin);
+userSchema.plugin(mongoosePaginate);
 
 const User = model('User', userSchema);
 export default User;
