@@ -96,7 +96,6 @@ export const getAllApartments = async (req, res) => {
  */
 export const getOneApartment = async (req, res) => {
   const { apartmentId, userId } = req.params;
-  console.log(req.params)
   try {
     const apartment = await Apartment.findOne({
       _id: apartmentId,

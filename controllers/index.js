@@ -19,6 +19,7 @@ import {
   createFavourite,
   deleteFavourite,
   getAllFavourites,
+  getAllUserFavourites,
 } from './favourite';
 import { createRating, getAllRating } from './rating';
 
@@ -41,4 +42,5 @@ export {
   createFavourite,
   deleteFavourite,
   getAllFavourites,
+  getAllUserFavourites,
 };
