@@ -36,13 +36,26 @@ export const createFavourite = async (req, res) => {
   }
 };
 
-export const getAllFavourites = async (req, res) => {
+export const getAllUserFavourites = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.params;
     const favourites = await Favourite.find({ user: userId });
     if (!favourites) {
       return res.status(404).send({ error: 'You have no favourite' });
     }
+    return res.status(200).send({
+      message: 'favourites fetched successfully',
+      favourites,
+    });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+
+export const getAllFavourites = async (req, res) => {
+  try {
+    const favourites = await Favourite.find({});
     return res.status(200).send({
       message: 'favourites fetched successfully',
       favourites,
