@@ -39,7 +39,9 @@ export const createFavourite = async (req, res) => {
 export const getAllUserFavourites = async (req, res) => {
   try {
     const { userId } = req.params;
-    const favourites = await Favourite.find({ user: userId });
+    const favourites = await Favourite.find({ user: userId }).populate(
+      'apartment'
+    );
     if (!favourites) {
       return res.status(404).send({ error: 'You have no favourite' });
     }
