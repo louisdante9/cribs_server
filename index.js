@@ -14,7 +14,7 @@ import {
 import { GlobalErrorHandler } from './middlewares';
 
 const app = express();
-const port = process.env.PORT || 9000;
+const port = parseInt(process.env.PORT, 10) || 9000;
 app.use(cors());
 app.use(json());
 app.use(urlencoded({ extended: false }));
