@@ -7,4 +7,3 @@ const favouriteSchema = new Schema({
 });
 favouriteSchema.plugin(timestampPlugin);
 module.exports = model('Favorite', favouriteSchema);
-
