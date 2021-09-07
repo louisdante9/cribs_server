@@ -1,7 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
-import gravatar from 'gravatar';
 import Apartment from '../models/apartment';
-import logger from '../utils';
+import History from '../models/history';
+import Rating from '../models/rating';
+import Favourite from '../models/favourite';
+import { logger } from '../utils';
+
 
 /**
  * create apartment
@@ -9,31 +11,43 @@ import logger from '../utils';
  * @param {any} res response object
  * @return {void}
  */
-export const createTransactions = async (req, res) => {
+export const createApartment = async (req, res) => {
   const {
     img,
-    apartmentName,
-    apartmentType,
+    propertyName,
+    propertyType,
     description,
     address,
-    location,
+    state,
+    city,
+    zipCode,
     noOfRooms,
-    fittings,
-    booked,
-    price,
+    noOfBaths,
+    noOfguest,
+    amenities,
+    agentDiscount,
+    pricePerNight,
+    latitude,
+    longitude,
   } = req.body;
   try {
     const instance = new Apartment({
       img,
-      apartmentName,
-      apartmentType,
+      propertyName,
+      propertyType,
       description,
       address,
-      location,
+      state,
+      city,
+      zipCode,
       noOfRooms,
-      fittings,
-      booked,
-      price,
+      noOfBaths,
+      noOfguest,
+      amenities,
+      pricePerNight,
+      agentDiscount,
+      latitude,
+      longitude,
     });
     const apartment = await instance.save();
     return res
@@ -54,10 +68,21 @@ export const createTransactions = async (req, res) => {
  */
 export const getAllApartments = async (req, res) => {
   try {
-    const transactions = await Apartment.find();
-    return res
-      .status(200)
-      .json({ transactions, message: 'apartments fetched successfully' });
+    const ratingAvg = await Rating.aggregate([
+      { $unwind: '$apartment' },
+      {
+        $group: {
+          _id: '$apartment',
+          rating: { $avg: '$rating' },
+        },
+      },
+    ]);
+
+    const listings = await Apartment.find();
+    return res.status(200).json({
+      message: 'apartments fetched successfully',
+      apartments: { listings, ratingAvg },
+    });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -70,15 +95,74 @@ export const getAllApartments = async (req, res) => {
  * @param {any} res response object
  * @return {void}
  */
-export const getOneApartments = async (req, res) => {
+export const getOneApartment = async (req, res) => {
+  const { apartmentId, userId } = req.params;
   try {
-    const transaction = await Apartment.findOne({ _id: req.params.id });
-    if (!transaction) {
+    const apartment = await Apartment.findOne({
+      _id: apartmentId,
+    }).populate('ratings', '-_id rating user');
+    if (!apartment) {
       return res.status(404).send({ message: 'No apartment found' });
     }
+    const visits = await History.find({})
+      .where('apartment')
+      // eslint-disable-next-line no-underscore-dangle
+      .equals(apartment._id)
+      .where('user')
+      // eslint-disable-next-line no-underscore-dangle
+      .equals(userId);
+
+    const favourite = await Favourite.find({})
+      .where('apartment')
+      // eslint-disable-next-line no-underscore-dangle
+      .equals(apartment._id)
+      .where('user')
+      // eslint-disable-next-line no-underscore-dangle
+      .equals(userId);
+
+    // return console.log(favourite, 'favourite');
+    const favourited = favourite.length > 0;
+
+    return res.status(200).json({
+      message: 'apartment fetched successfully',
+      data: { apartment, visits: visits.length, favourited },
+    });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * update an apartment
+ * @param {any} req object
+ * @param {any} res object
+ * @return {void}
+ */
+export const updateApartment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const apartment = await Apartment.findOne({ _id: id });
+    if (!apartment) {
+      return res.status(404).send({ error: 'apartment not found' });
+    }
+
+    const query = {
+      _id: id,
+    };
+    const userObj = {
+      $set: {
+        ...req.body,
+      },
+    };
+    const updatedApartment = await Apartment.findOneAndUpdate(query, userObj, {
+      new: true,
+    });
+
     return res
-      .status(200)
-      .json({ transaction, message: 'apartment fetched successfully' });
+      .status(201)
+      .send({ message: 'updated was successfully', updatedApartment });
+
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -86,64 +170,21 @@ export const getOneApartments = async (req, res) => {
 };
 
 /**
- * update an apartment
- * action can only be done by admin
- * @param {any} req request object
- * @param {any} res response object
+ * delete an apartment
+ * @param {any} req user request object
+ * @param {any} res servers response
  * @return {void}
  */
-// export const updateTransaction = async (req, res) => {
-//   let { btcAmt, payment, gains, userId } = req.body;
-//   userId = userId[0]._id;
-//   try {
-//     const transaction = await Transaction.findOne({
-//       _id: req.params.id,
-//     }).populate('userId');
-//     if (!transaction) {
-//       return res.status(404).send({ message: 'transaction not found' });
-//     }
-//     const query = {
-//       _id: req.params.id,
-//     };
-//     const transObj = {
-//       $set: {
-//         status: 'approved',
-//       },
-//     };
-//     const updateTransaction = await Transaction.findOneAndUpdate(
-//       query,
-//       transObj,
-//       { new: true }
-//     );
-//     if (updateTransaction) {
-//       res
-//         .status(201)
-//         .send({ message: 'updated was successfully', updateTransaction });
-//       try {
-//         const user = await User.findOne({ _id: userId });
-//         if (!user) {
-//           return res.status(400).send({ message: 'Bad request' });
-//         }
-//         const userObj = {
-//           $set: {
-//             totalInvestment: Number(user.totalInvestment) + Number(btcAmt),
-//             accountBal: Number(user.accountBal) - Number(payment),
-//             earnedTotal: Number(user.earnedTotal) + Number(gains),
-//           },
-//         };
-//         const updateUser = await User.findOneAndUpdate(
-//           { _id: userId },
-//           userObj,
-//           { new: true }
-//         );
-//         if (!updateUser) {
-//           return res.status(400).send({ message: 'Bad request' });
-//         }
-//       } catch (error) {
-//         res.status(400).send({ error });
-//       }
-//     }
-//   } catch (error) {
-//     res.status(400).send({ error });
-//   }
-// };
+export const deleteApartment = async (req, res) => {
+  try {
+    const apartment = await Apartment.findById(req.params.id);
+    if (!apartment) {
+      res.status(404).send({ error: 'apartment not found' });
+    }
+    const delApartment = await Apartment.deleteOne({ _id: req.params.id });
+    return res.status(202).send({ message: 'Apartment deleted', delApartment });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};

@@ -1,28 +1,46 @@
 import express from 'express';
 import cors from 'cors';
 import { json, urlencoded } from 'body-parser';
-
 import { logger } from './utils';
 import config from './config';
 import db from './config/db';
-// const routes = require('./routes');
+import {
+  userRoute,
+  bookingRoute,
+  apartmentRoute,
+  ratingRoute,
+  favouriteRoute,
+} from './middlewares/routes';
 import { GlobalErrorHandler } from './middlewares';
 
 const app = express();
-const port = process.env.PORT || 3000;
-
+const port = process.env.PORT || 9000;
 app.use(cors());
 app.use(json());
 app.use(urlencoded({ extended: false }));
 
 db(config)
   .then(() => {
-    // app.use('/v1', routes(express));
-    app.use(GlobalErrorHandler);
-    app.get('/', (req, res) => {
+    app.use('/user', userRoute(express));
+    app.use('/booking', bookingRoute(express));
+    app.use('/apartment', apartmentRoute(express));
+    app.use('/rating', ratingRoute(express));
+    app.use('/favourite', favouriteRoute(express));
+    app.use('/', (req, res) => {
       res.send('hello there');
     });
-
+    app.use((err, req, res, next) => {
+      if (err && err.error && err.error.isJoi) {
+        logger.error(err.error.toString());
+        res.status(400).json({
+          type: err.type,
+          message: err.error.toString(),
+        });
+      } else {
+        next(err);
+      }
+    });
+    app.use(GlobalErrorHandler);
     app.listen(port, (err) => {
       if (err) {
         throw new Error(err.message);

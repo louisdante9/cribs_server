@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import gravatar from 'gravatar';
+import rcg from 'referral-code-generator';
 import User from '../models/user';
 import Apartment from '../models/apartment';
-import { generateToken } from '../utils';
+import { generateToken, logger } from '../utils';
 
 export const login = async (userCred, res, role) => {
   const { email, password } = userCred;
@@ -10,25 +11,23 @@ export const login = async (userCred, res, role) => {
   try {
     const user = await User.findOne({ email: email.trim().toLowerCase() });
     if (!user) {
-      return res.status(401).send({ message: 'Failed to authenticate user' });
+      return res.status(401).send({ error: 'Failed to authenticate user' });
     }
     if (!user.validPassword(password)) {
-      return res.status(401).send({ message: 'Failed to authenticate user' });
+      return res.status(401).send({ error: 'Failed to authenticate user' });
     }
 
-    if (!user.status) {
-      return res
-        .status(401)
-        .send({ message: 'You need to active account with token' });
+    if (!user.activated) {
+      return res.status(401).send({
+        message: 'You need to activate account pls contact admin for help',
+        error: 'activate account',
+      });
     }
 
     // We will check the role
     if (user.role !== role) {
       return res.status(403).json({
-        error: {
-          message: 'Please make sure you are logging in from the right portal.',
-          success: false,
-        },
+        error: 'Please make sure you are logging in from the right portal.',
       });
     }
     return res.status(200).json({
@@ -40,15 +39,13 @@ export const login = async (userCred, res, role) => {
         lastname: user.lastname,
         username: user.username,
         role: user.role,
-        status: user.status,
+        activated: user.activated,
         avatar: user.avatar,
-        totalInvestment: user.totalInvestment,
-        earnedTotal: user.earnedTotal,
-        accountBal: user.accountBal,
       }),
     });
   } catch (error) {
-    return res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -67,28 +64,38 @@ export const register = async (userCred, res, role) => {
   if (role === 'admin') {
     userObj = {
       ...userCred,
+      activated: true,
+      activationCode: uuidv4(),
       role,
-      status: true,
-      uuidv4: uuidv4(),
+      avatar,
+    };
+  } else if (role === 'agent') {
+    userObj = {
+      ...userCred,
+      referralCode: rcg.alpha('lowercase', 12),
+      activationCode: uuidv4(),
+      role,
       avatar,
     };
   } else {
     userObj = {
       ...userCred,
-      role,
-      uuidv4: uuidv4(),
+      activationCode: uuidv4(),
       avatar,
+      referralCode: rcg.alpha('lowercase', 12),
+      role,
     };
   }
   const instance = new User(userObj);
   try {
     const user = await instance.save();
-    if (!user) {
-      return res.status(500).send({ message: 'Internal server error' });
-    }
-    return res.status(200).json({ message: 'User was created successfully' });
+    return res.status(200).json({
+      message: 'User was created successfully',
+      user,
+    });
   } catch (error) {
-    return res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 /**
@@ -99,37 +106,45 @@ export const register = async (userCred, res, role) => {
  */
 export const activateUser = async (req, res) => {
   const { activationCode } = req.body;
+  try {
+    const user = await User.findOne({ activationCode });
+    if (!user) {
+      return res.status(400).send({ error: 'activate code is invalid' });
+    }
+    if (user.activated) {
+      return res.status(400).send({ error: 'user already activated' });
+    }
+    const query = {
+      activationCode,
+    };
+    const userObj = {
+      $set: {
+        activated: true,
+      },
+    };
+    const verifiedUser = await User.findOneAndUpdate(query, userObj, {
+      new: true,
+    });
 
-  const user = await User.findOne({ uuidv4: activationCode });
-  if (!user) {
-    return res.status(400).send({ error: 'activate code given is invalid' });
-  }
-  const query = {
-    uuidv4: activationCode,
-  };
-  const userObj = {
-    $set: {
-      status: true,
-    },
-  };
-  const verifiedUser = await User.findOneAndUpdate(query, userObj, {
-    new: true,
-  });
-  if (verifiedUser) {
-    res.status(201).send({
+    return res.status(201).send({
       message: 'Token was verified successfully',
       verifiedUser,
       token: generateToken({
+        // eslint-disable-next-line no-underscore-dangle
         id: verifiedUser._id,
         email: verifiedUser.email,
         firstname: verifiedUser.firstname,
         lastname: verifiedUser.lastname,
         username: verifiedUser.username,
+        phone: verifiedUser.phone,
         role: verifiedUser.role,
         status: verifiedUser.status,
         avatar: verifiedUser.avatar,
       }),
     });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -140,14 +155,25 @@ export const activateUser = async (req, res) => {
  * @return {void}
  */
 export const getAllUsers = async (req, res) => {
+  const pageOptions = {
+    page: parseInt(req.query.page, 10) || 0,
+    limit: parseInt(req.query.limit, 10) || 10,
+  };
   try {
-    const users = await User.find().select('-password');
-    const clients = await users.filter((user) => user.role != 'admin');
+    const clients = await User.paginate(
+      {},
+      {
+        offset: pageOptions.page * pageOptions.limit,
+        limit: pageOptions.limit,
+        select: '-password',
+      }
+    );
     return res
       .status(200)
-      .json({ clients, message: 'users fetched successfully' });
+      .json({ message: 'users fetched successfully', clients });
   } catch (error) {
-    res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -163,9 +189,10 @@ export const getOneUser = async (req, res) => {
     if (!user) {
       return res.status(404).send({ message: 'user not found' });
     }
-    res.status(201).send({ user, message: 'user found' });
+    return res.status(200).send({ user, message: 'user found' });
   } catch (error) {
-    res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -179,14 +206,13 @@ export const deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).send({ messsage: 'parcel does not exist' });
+      res.status(404).send({ error: 'user not found' });
     }
     const delUser = await User.remove({ _id: req.params.id });
-    if (delUser) {
-      res.status(202).send({ message: 'User deleted', parcel });
-    }
+    return res.status(202).send({ message: 'User deleted', delUser });
   } catch (error) {
-    res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
 
@@ -197,32 +223,51 @@ export const deleteUser = async (req, res) => {
  * @return {void}
  */
 export const updateUser = async (req, res) => {
-  const { accountBal, earnedTotal, totalInvestment, planType } = req.body;
   try {
     const user = await User.findOne({ _id: req.params.id });
     if (!user) {
-      return res.status(404).send({ message: 'user not found' });
+      return res.status(404).send({ error: 'user not found' });
     }
     const query = {
       _id: req.params.id,
     };
     const userObj = {
       $set: {
-        accountBal,
-        earnedTotal,
-        totalInvestment,
-        planType,
+        ...req.body,
       },
     };
     const updatedUser = await User.findOneAndUpdate(query, userObj, {
       new: true,
     });
-    if (updatedUser) {
-      res
-        .status(201)
-        .send({ message: 'updated was successfully', updatedUser });
-    }
+
+    return res
+      .status(201)
+      .send({ message: 'updated was successfully', updatedUser });
   } catch (error) {
-    res.status(400).send({ error });
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+
+/**
+ * get user apartment history
+ * @param {any} req user request object
+ * @param {any} res servers response
+ * @return {void}
+ */
+export const getAllUserApartmentHistory = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).send({ error: 'user not found' });
+    }
+    // eslint-disable-next-line no-underscore-dangle
+    const history = await Apartment.find({}).where('user').equals(user._id);
+    return res
+      .status(200)
+      .json({ message: 'users fetched successfully', history });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
   }
 };
