@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "description": "this is the server for the rezerv mobile app",
   "main": "index.js",
+  "engines": {
+    "node": "14.17.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon --delay 500ms ./index --exec babel-node"
+    "build": "npm run clean && npm run build-babel",
+    "start": "npm run build && node ./build/index.js",
+    "clean": "rm -rf build && mkdir build",
+    "build-babel": "babel -d ./build ./src -s",
+    "dev": "nodemon --delay 500ms ./src/index --exec babel-node"
   },
   "repository": {
     "type": "git",
@@ -18,6 +24,7 @@
     "babel-plugin-transform-es2015-object-super": "^6.24.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "core-js": "^3.17.2",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -29,6 +36,7 @@
     "mongoose-paginate": "^5.0.3",
     "nodemailer": "^6.6.3",
     "referral-code-generator": "^1.0.8",
+    "regenerator-runtime": "^0.13.9",
     "uuid": "^8.3.0",
     "validator": "^13.6.0",
     "winston": "^3.3.3"
