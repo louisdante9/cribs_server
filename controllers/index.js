@@ -7,7 +7,12 @@ import {
   updateUser,
   activateUser,
 } from './user';
-import { getAllBookingAsAdmin } from './booking';
+import {
+  getAllBookingAsAdmin,
+  checkBookingAvailability,
+  createBooking,
+  getAllAvailableBookingDate,
+} from './booking';
 import {
   createApartment,
   getAllApartments,
@@ -36,6 +41,9 @@ export {
   updateApartment,
   deleteApartment,
   getAllBookingAsAdmin,
+  getAllAvailableBookingDate,
+  checkBookingAvailability,
+  createBooking,
   getOneApartment,
   createRating,
   getAllRating,
