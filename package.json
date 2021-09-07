@@ -26,8 +26,9 @@
     "gravatar": "^1.8.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.28",
-    "referral-code-generator": "^1.0.8",
+    "mongoose-paginate": "^5.0.3",
     "nodemailer": "^6.6.3",
+    "referral-code-generator": "^1.0.8",
     "uuid": "^8.3.0",
     "validator": "^13.6.0",
     "winston": "^3.3.3"
