@@ -19,6 +19,7 @@ export const sendSuccessfulTransfer = (
   balance,
   username
 ) => {
+
   const transporter = nodemailer.createTransport({
     // service: 'gmail',
     host: 'smtp.zoho.com',

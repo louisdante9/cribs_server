@@ -4,6 +4,7 @@ import Rating from '../models/rating';
 import Favourite from '../models/favourite';
 import { logger } from '../utils';
 
+
 /**
  * create apartment
  * @param {any} req request object
@@ -161,6 +162,7 @@ export const updateApartment = async (req, res) => {
     return res
       .status(201)
       .send({ message: 'updated was successfully', updatedApartment });
+
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
