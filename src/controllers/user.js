@@ -67,7 +67,6 @@ export const register = async (userCred, res, role) => {
       activated: true,
       activationCode: uuidv4(),
       role,
-      avatar,
     };
   } else if (role === 'agent') {
     userObj = {
@@ -75,7 +74,6 @@ export const register = async (userCred, res, role) => {
       referralCode: rcg.alpha('lowercase', 12),
       activationCode: uuidv4(),
       role,
-      avatar,
     };
   } else {
     userObj = {
@@ -136,7 +134,6 @@ export const activateUser = async (req, res) => {
         firstname: verifiedUser.firstname,
         lastname: verifiedUser.lastname,
         username: verifiedUser.username,
-        phone: verifiedUser.phone,
         role: verifiedUser.role,
         status: verifiedUser.status,
         avatar: verifiedUser.avatar,
