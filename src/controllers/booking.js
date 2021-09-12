@@ -78,8 +78,6 @@ export const checkBookingAvailability = async (req, res) => {
         { startDate: { $lte: startDate }, endDate: { $gte: startDate } },
       ],
     });
-    console.log(check, check.length > 0, 'check');
-
     return res.status(200).json({
       message: 'apartments fetched successfully',
       check,
