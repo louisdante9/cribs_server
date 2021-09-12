@@ -22,10 +22,13 @@ app.use(urlencoded({ extended: false }));
 db(config)
   .then(() => {
     app.use('/user', userRoute(express));
-    app.use('/booking', bookingRoute(express));
+    app.use('/book', bookingRoute(express));
     app.use('/apartment', apartmentRoute(express));
     app.use('/rating', ratingRoute(express));
     app.use('/favourite', favouriteRoute(express));
+    app.post('/check', (req, res) => {
+      res.send('this is working');
+    });
     app.use('/', (req, res) => {
       res.send('hello there');
     });

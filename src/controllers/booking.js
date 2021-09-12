@@ -12,39 +12,33 @@ import { logger } from '../utils';
 // eslint-disable-next-line consistent-return
 export const createBooking = async (req, res) => {
   try {
-    const { apartmentId, userId, startDate, endDate } = req.body;
-    const apartment = Apartment.find({ _id: apartmentId });
+    const { apartmentId, userId, startDate, endDate, transactionId } = req.body;
+    const apartment = await Apartment.findOne({ _id: apartmentId });
+
     if (!apartment) {
       return res.status(404).send({ error: 'apartment not found' });
     }
-    if (apartment.booked === true) {
-      return res
-        .status(409)
-        .send({ error: 'Apartment has already been booked' });
-    }
-    // find an apartment and then update the booked key and then update or create the booking document
+
     const instance = new Booking({
       apartmentId,
+      transactionId,
       userId,
       startDate,
       endDate,
     });
     const historyInstance = new History({
       apartmentId,
+      transactionId,
       userId,
       startDate,
       endDate,
     });
     const booked = await instance.save();
-    const history = await historyInstance.save();
-    if (booked && history) {
+    await historyInstance.save();
+    if (booked) {
       apartment.bookings.push(instance);
       apartment.save();
-      // const apartment = await Apartment.findOne({ _id: req.params.id });
-      // if (!apartment) {
-      //   return res.status(404).send({ error: 'apartment not found' });
-      // }
-      const updatedApartment = await Apartment.findOneAndUpdate(
+      const booking = await Apartment.findOneAndUpdate(
         { _id: apartmentId },
         { $set: { booked: true } },
         {
@@ -53,9 +47,44 @@ export const createBooking = async (req, res) => {
       );
       return res.status(200).json({
         message: 'apartment was created successfully',
-        updatedApartment,
+        booking,
       });
     }
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+
+/**
+ * check booking availability before creating a booking
+ * action can only be done by admin
+ * @param {any} req request object
+ * @param {any} res response object
+ * @return {void}
+ */
+export const checkBookingAvailability = async (req, res) => {
+  const { apartmentId, startDate, endDate } = req.body;
+  try {
+    const check = await Booking.find({
+      apartmentId,
+      $or: [
+        {
+          $and: [
+            { startDate: { $gte: startDate } },
+            { startDate: { $lte: endDate } },
+          ],
+        },
+        { startDate: { $lte: startDate }, endDate: { $gte: startDate } },
+      ],
+    });
+    console.log(check, check.length > 0, 'check');
+
+    return res.status(200).json({
+      message: 'apartments fetched successfully',
+      check,
+      booked: check.length > 0,
+    });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
@@ -75,6 +104,28 @@ export const getAllBookingAsAdmin = async (req, res) => {
     return res
       .status(200)
       .json({ message: 'apartments fetched successfully', bookings });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+/**
+ * get all Bookings for an apartment
+ * action can only be done by admin
+ * @param {any} req request object
+ * @param {any} res response object
+ * @return {void}
+ */
+export const getAllAvailableBookingDate = async (req, res) => {
+  const { apartmentId } = req.params;
+  try {
+    const bookings = await Booking.find({})
+      .where('apartmentId')
+      .equals(apartmentId);
+
+    return res
+      .status(200)
+      .json({ message: 'Bookings fetched successfully', bookings });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });
