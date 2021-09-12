@@ -10,9 +10,17 @@ dotenv.config();
  * @param {*} host
  * @returns {*} Email notification
  */
-export const sendVerificationEmail = (email, firstname, activationCode) => {
+export const sendSuccessfulTransfer = (
+  email,
+  receiverBank,
+  receiverName,
+  receiverAccountNumber,
+  amountToTransfer,
+  balance,
+  username
+) => {
   const transporter = nodemailer.createTransport({
-    // service: 'zoho mail',
+    // service: 'gmail',
     host: 'smtp.zoho.com',
     port: 465,
     secure: true, // true for 465, false for other ports
@@ -23,12 +31,11 @@ export const sendVerificationEmail = (email, firstname, activationCode) => {
   });
 
   const mailOptions = {
-    from: '"Rezerve Homes" <support@rezervehomes.com>',
+    from: '"Abnb" <accounts@abnbfinance.com>',
     to: email,
-    subject: 'ACCOUNT VERIFICATION CODE',
+    subject: 'TRANSFER SUCCESSFUL',
     html: `
-    <body>
-    <div>
+    <body><div>
     <div style="background-color:#f2f3f5;padding:20px">
       <div style="max-width:600px;margin:0 auto">
        <div 
@@ -36,7 +43,7 @@ export const sendVerificationEmail = (email, firstname, activationCode) => {
           background:#fff;
           font:14px sans-serif;
           color:#686f7a;
-          border:2px solid #6c4af2;
+          border:2px solid #f4ab40;
           margin-bottom:10px">
         <div 
           style="
@@ -50,7 +57,7 @@ export const sendVerificationEmail = (email, firstname, activationCode) => {
               margin:0; 
               font-size:30px;
               font-family:'Kurale', serif;">
-              Rezerve Homes</h4>
+              ABNB</h4>
         </div>
         <div style="padding:10px 20px;line-height:1.5em;color:#686f7a">
           <p 
@@ -58,25 +65,53 @@ export const sendVerificationEmail = (email, firstname, activationCode) => {
               padding-bottom:20px;
               margin:20px 0;
               color:#686f7a">
-             Hi ${firstname}, <br/> <br/>
-             Your account has been successfully created!.<br/>
-             Here is your activation code <b>${activationCode}</b>. Copy and paste in your browser.
+             Hi ${username}, your transfer of $${amountToTransfer} to account number ${receiverAccountNumber} was successful.
+          </p>
+          <p 
+          style="
+            padding-bottom:20px;
+            margin:20px 0;
+            color:#686f7a">
+           TRANSACTION DETAIL:
+        </p>
+        <p 
+        style="
+          padding-bottom:20px;
+          margin:20px 0;
+          color:#686f7a">
+          Account Number: ${receiverAccountNumber}<br/>
+          Account Name: ${receiverName}<br/>
+          Beneficiaries Bank: ${receiverBank}<br/>
+          Amount Transfered: $${amountToTransfer}<br/>
+      </p>
+      <p
+         style=""><a 
+            style="
+              display:inline-block;
+              font-size:15px;color:#ffffff;
+              padding:10px 15px;
+              text-decoration:none;
+              background-color:#f4ab40;
+              border-radius:3px" 
+              target="_blank">
+              ACCOUNT BAL:  $${balance}
+          </a>
           </p>
           <p 
             style="
               padding-bottom:15px;
-              margin-top:10px;
+              margin-top:40px;
               color:#686f7a">
-              If you haven't made this request, kindly ignore this message.
+              If you haven't made this request please ignore this message.
           </p>
           <p 
             style="padding-bottom:10px;
               margin-top:20px;
               color:#686f7a">
               Best regards, <br>
-              Rezerve Homes.<br>
-            <a href="rezervehome.com"
-              style="color: #6c4af2">rezervehome.com
+              ABNB.<br>
+            <a href="abnbfinance.com"
+              style="color: #f4ab40">abnbfinance.com
             </a>
           </p>
         </div>
@@ -88,6 +123,7 @@ export const sendVerificationEmail = (email, firstname, activationCode) => {
 
   // eslint-disable-next-line consistent-return
   transporter.sendMail(mailOptions, (error) => {
+    console.log(mailOptions, 'mailOptions');
     if (error) {
       console.log(error);
       return error;
