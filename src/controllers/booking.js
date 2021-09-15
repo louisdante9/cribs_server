@@ -12,7 +12,8 @@ import { logger } from '../utils';
 // eslint-disable-next-line consistent-return
 export const createBooking = async (req, res) => {
   try {
-    const { apartmentId, userId, startDate, endDate, transactionId } = req.body;
+    const { apartmentId, userId, startDate, endDate, transactionId, amount } =
+      req.body;
     const apartment = await Apartment.findOne({ _id: apartmentId });
 
     if (!apartment) {
@@ -22,6 +23,7 @@ export const createBooking = async (req, res) => {
     const instance = new Booking({
       apartmentId,
       transactionId,
+      amount,
       userId,
       startDate,
       endDate,
@@ -29,6 +31,7 @@ export const createBooking = async (req, res) => {
     const historyInstance = new History({
       apartmentId,
       transactionId,
+      amount,
       userId,
       startDate,
       endDate,

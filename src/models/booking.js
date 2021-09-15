@@ -5,6 +5,7 @@ const bookingSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
   apartmentId: { type: Schema.Types.ObjectId, ref: 'Apartment' },
   transactionId: { type: String, required: true },
+  amount: { type: Number, required: true },
   startDate: {
     type: Date,
     required: true,
