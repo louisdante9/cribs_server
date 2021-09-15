@@ -2,10 +2,18 @@ import { Schema, model } from 'mongoose';
 import timestampPlugin from './plugin/timestamp';
 
 const bookingSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User' },
-  apartment: { type: Schema.Types.ObjectId, ref: 'Apartment' },
-  startDate: Date,
-  endDate: Date,
+  userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  apartmentId: { type: Schema.Types.ObjectId, ref: 'Apartment' },
+  transactionId: { type: String, required: true },
+  amount: { type: Number, required: true },
+  startDate: {
+    type: Date,
+    required: true,
+  },
+  endDate: {
+    type: Date,
+    required: true,
+  },
 });
 bookingSchema.plugin(timestampPlugin);
 // create the model for transaction and expose it to our app
