@@ -26,9 +26,6 @@ db(config)
     app.use('/apartment', apartmentRoute(express));
     app.use('/rating', ratingRoute(express));
     app.use('/favourite', favouriteRoute(express));
-    app.post('/check', (req, res) => {
-      res.send('this is working');
-    });
     app.use('/', (req, res) => {
       res.send('hello there');
     });

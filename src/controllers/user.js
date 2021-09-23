@@ -4,6 +4,7 @@ import rcg from 'referral-code-generator';
 import User from '../models/user';
 import Apartment from '../models/apartment';
 import { generateToken, logger } from '../utils';
+import { sendVerificationEmail } from '../utils/sendmail';
 
 export const login = async (userCred, res, role) => {
   const { email, password } = userCred;
@@ -89,6 +90,9 @@ export const register = async (userCred, res, role) => {
   const instance = new User(userObj);
   try {
     const user = await instance.save();
+    if (user.role !== 'admin') {
+      sendVerificationEmail(user.email, user.firstname, user.activationCode);
+    }
     return res.status(200).json({
       message: 'User was created successfully',
       user,
