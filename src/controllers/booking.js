@@ -155,28 +155,6 @@ export const getAllHomeOwnerBookings = async (req, res) => {
     return res.status(500).send({ error: 'something went wrong' });
   }
 };
-/**
- * get all Bookings for an apartment
- * action can only be done by admin
- * @param {any} req request object
- * @param {any} res response object
- * @return {void}
- */
-export const getAllAvailableBookingDate = async (req, res) => {
-  const { apartmentId } = req.params;
-  try {
-    const bookings = await Booking.find({})
-      .where('apartmentId')
-      .equals(apartmentId);
-
-    return res
-      .status(200)
-      .json({ message: 'Bookings fetched successfully', bookings });
-  } catch (error) {
-    logger.error(error);
-    return res.status(500).send({ error: 'something went wrong' });
-  }
-};
 
 /**
  * update a booking
