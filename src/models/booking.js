@@ -2,6 +2,7 @@ import { Schema, model } from 'mongoose';
 import timestampPlugin from './plugin/timestamp';
 
 const bookingSchema = new Schema({
+  homeOwnerId: { type: Schema.Types.ObjectId, ref: 'User' },
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
   apartmentId: { type: Schema.Types.ObjectId, ref: 'Apartment' },
   transactionId: { type: String, required: true },

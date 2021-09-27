@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import gravatar from 'gravatar';
+// import gravatar from 'gravatar';
 import rcg from 'referral-code-generator';
 import User from '../models/user';
 import Apartment from '../models/apartment';
@@ -41,7 +41,6 @@ export const login = async (userCred, res, role) => {
         username: user.username,
         role: user.role,
         activated: user.activated,
-        avatar: user.avatar,
       }),
     });
   } catch (error) {
@@ -57,18 +56,17 @@ export const register = async (userCred, res, role) => {
   if (userFound) {
     return res.status(409).send({ error: 'sorry email already exist' });
   }
-  const avatar = gravatar.url(email, {
-    s: '200',
-    r: 'pg',
-    d: 'mm',
-  });
+  // const avatar = gravatar.url(email, {
+  //   s: '200',
+  //   r: 'pg',
+  //   d: 'mm',
+  // });
   if (role === 'admin') {
     userObj = {
       ...userCred,
       activated: true,
       activationCode: uuidv4(),
       role,
-      avatar,
     };
   } else if (role === 'agent') {
     userObj = {
@@ -76,13 +74,11 @@ export const register = async (userCred, res, role) => {
       referralCode: rcg.alpha('lowercase', 12),
       activationCode: uuidv4(),
       role,
-      avatar,
     };
   } else {
     userObj = {
       ...userCred,
       activationCode: uuidv4(),
-      avatar,
       referralCode: rcg.alpha('lowercase', 12),
       role,
     };

@@ -3,12 +3,14 @@ import {
   checkBookingAvailability,
   createBooking,
   getAllAvailableBookingDate,
+  getAllHomeOwnerBookings,
 } from '../../controllers';
 
 module.exports = (express) => {
   const router = express.Router();
 
   router.get('/', getAllBookingAsAdmin);
+  router.get('/home/:userId', getAllHomeOwnerBookings);
   router.post('/', async (req, res) => {
     await createBooking(req, res);
   });

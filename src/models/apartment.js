@@ -22,6 +22,7 @@ const apartmentSchema = new Schema({
   longitude: { type: String, required: true },
   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
   bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
+  userId: { type: Schema.Types.ObjectId, ref: 'User' },
 });
 apartmentSchema.plugin(timestampPlugin);
 module.exports = model('Apartment', apartmentSchema);

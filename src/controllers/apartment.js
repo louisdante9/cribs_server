@@ -4,6 +4,7 @@ import Rating from '../models/rating';
 import Favourite from '../models/favourite';
 import { logger } from '../utils';
 
+const AGENT_DISCOUNT = 7.5;
 /**
  * create apartment
  * @param {any} req request object
@@ -24,10 +25,10 @@ export const createApartment = async (req, res) => {
     noOfBaths,
     noOfguest,
     amenities,
-    agentDiscount,
     pricePerNight,
     latitude,
     longitude,
+    userId,
   } = req.body;
   try {
     const instance = new Apartment({
@@ -44,9 +45,10 @@ export const createApartment = async (req, res) => {
       noOfguest,
       amenities,
       pricePerNight,
-      agentDiscount,
+      agentDiscount: AGENT_DISCOUNT,
       latitude,
       longitude,
+      userId,
     });
     const apartment = await instance.save();
     return res
@@ -87,6 +89,27 @@ export const getAllApartments = async (req, res) => {
     return res.status(500).send({ error: 'something went wrong' });
   }
 };
+/**
+ * get all apartment
+ * action can only be done by admin
+ * @param {any} req request object
+ * @param {any} res response object
+ * @return {void}
+ */
+export const getAllUserApartments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const listings = await Apartment.find({}).where('userId').equals(userId);
+    return res.status(200).json({
+      message: 'apartments fetched successfully',
+      apartments: { listings },
+    });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+
 /**
  * get one apartment
  * action can only be done by admin

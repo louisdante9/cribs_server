@@ -27,6 +27,7 @@ export const createBooking = async (req, res) => {
       userId,
       startDate,
       endDate,
+      homeOwnerId: apartment.userId,
     });
     const historyInstance = new History({
       apartmentId,
@@ -102,6 +103,28 @@ export const checkBookingAvailability = async (req, res) => {
 export const getAllBookingAsAdmin = async (req, res) => {
   try {
     const bookings = await Apartment.find({}).where('booked').equals(true);
+    return res
+      .status(200)
+      .json({ message: 'apartments fetched successfully', bookings });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+
+/**
+ * get all Bookings for home owner
+ * action can only be done by admin
+ * @param {any} req request object
+ * @param {any} res response object
+ * @return {void}
+ */
+export const getAllHomeOwnerBookings = async (req, res) => {
+  try {
+    const { userId: homeOwnerId } = req.params;
+    const bookings = await Booking.find({})
+      .where('homeOwnerId')
+      .equals(homeOwnerId);
     return res
       .status(200)
       .json({ message: 'apartments fetched successfully', bookings });
