@@ -136,7 +136,6 @@ export const activateUser = async (req, res) => {
         firstname: verifiedUser.firstname,
         lastname: verifiedUser.lastname,
         username: verifiedUser.username,
-        phone: verifiedUser.phone,
         role: verifiedUser.role,
         status: verifiedUser.status,
         avatar: verifiedUser.avatar,
