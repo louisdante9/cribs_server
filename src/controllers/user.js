@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import gravatar from 'gravatar';
+// import gravatar from 'gravatar';
 import rcg from 'referral-code-generator';
 import User from '../models/user';
 import Apartment from '../models/apartment';
 import { generateToken, logger } from '../utils';
+import { sendVerificationEmail } from '../utils/sendmail';
 
 export const login = async (userCred, res, role) => {
   const { email, password } = userCred;
@@ -40,7 +41,6 @@ export const login = async (userCred, res, role) => {
         username: user.username,
         role: user.role,
         activated: user.activated,
-        avatar: user.avatar,
       }),
     });
   } catch (error) {
@@ -56,11 +56,11 @@ export const register = async (userCred, res, role) => {
   if (userFound) {
     return res.status(409).send({ error: 'sorry email already exist' });
   }
-  const avatar = gravatar.url(email, {
-    s: '200',
-    r: 'pg',
-    d: 'mm',
-  });
+  // const avatar = gravatar.url(email, {
+  //   s: '200',
+  //   r: 'pg',
+  //   d: 'mm',
+  // });
   if (role === 'admin') {
     userObj = {
       ...userCred,
@@ -79,7 +79,6 @@ export const register = async (userCred, res, role) => {
     userObj = {
       ...userCred,
       activationCode: uuidv4(),
-      avatar,
       referralCode: rcg.alpha('lowercase', 12),
       role,
     };
@@ -87,6 +86,9 @@ export const register = async (userCred, res, role) => {
   const instance = new User(userObj);
   try {
     const user = await instance.save();
+    if (user.role !== 'admin') {
+      sendVerificationEmail(user.email, user.firstname, user.activationCode);
+    }
     return res.status(200).json({
       message: 'User was created successfully',
       user,
