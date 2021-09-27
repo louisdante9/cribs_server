@@ -12,12 +12,11 @@ dotenv.config();
  */
 // eslint-disable-next-line import/prefer-default-export
 export const sendVerificationEmail = (email, firstname, activationCode) => {
-  console.log(process.env.EMAIL, 'hello')
   const transporter = nodemailer.createTransport({
     // service: 'zoho mail',
     host: 'smtp.zoho.com',
     port: 465,
-    // secure: true, // true for 465, false for other ports
+    secure: true, // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL,
       pass: process.env.PASSWORD,
