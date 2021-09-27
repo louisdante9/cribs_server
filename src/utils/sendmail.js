@@ -10,12 +10,14 @@ dotenv.config();
  * @param {*} host
  * @returns {*} Email notification
  */
+// eslint-disable-next-line import/prefer-default-export
 export const sendVerificationEmail = (email, firstname, activationCode) => {
+  console.log(process.env.EMAIL, 'hello')
   const transporter = nodemailer.createTransport({
     // service: 'zoho mail',
     host: 'smtp.zoho.com',
     port: 465,
-    secure: true, // true for 465, false for other ports
+    // secure: true, // true for 465, false for other ports
     auth: {
       user: process.env.EMAIL,
       pass: process.env.PASSWORD,
@@ -92,59 +94,5 @@ export const sendVerificationEmail = (email, firstname, activationCode) => {
       console.log(error);
       return error;
     }
-  });
-};
-
-/**
- * @function sendSuccessfulReset
- * @param {*} email
- * @returns {*} Email notification
- */
-export const sendSuccessfulTransfer2 = (email) => {
-  // create reusable transporter object using the default SMTP transport
-  const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-    },
-  });
-
-  // setup email data with unicode symbols
-  const mailOptions = {
-    from: '"ABNB" <@gmail.com>',
-    to: email,
-    subject: 'YOUR TRANSFER WAS SUCCESSFUL',
-    html: `  <div style="width: 100%; color: white; background-color: #fff; padding: 2%;">
-    <div style="width: 60%; background-color: #2c3e56; margin: auto;">
-      <div style="height: 8%; background-color: #2c3e56; width:100%; border-bottom: 1.2px solid black">
-        <p style="color: palevioletred; font-weight:bold; margin-left: 3%; padding-top: 2%; font-family: kurale serif">POSTIT!!</p>
-      </div>
-      <div style="padding: 8%">
-        <div class="row">
-          This email confirms that your new POSTIT password has been updated.
-    You can now access your Account.
-        </div>
-          <br>
-          Thanks You.
-        <div>
-          <br>
-        </div>
-        <p style="font-weight: bold; font-family:kurale serif; color: palevioletred">POSTIT!!</p>
-      </div>
-      <div style="height: 8%; background-color: #2c3e56; border-top: 1.2px solid black; width:100%">
-        <p><small style="padding-left: 2%; text-align: center; color:white;"> Copyright M.jeck</small></p>
-      </div>
-    </div>
-  </div> `,
-  };
-
-  // send mail with defined transport object
-  // eslint-disable-next-line consistent-return
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return error;
-    }
-    console.log(`Message ${info.messageId} send: ${info.response}`);
   });
 };
