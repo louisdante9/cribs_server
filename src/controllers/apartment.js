@@ -83,14 +83,13 @@ export const getAllApartments = async (req, res) => {
       },
     ]);
 
-    const listings = await Apartment.find(
+    const listings = await Apartment.paginate(
       {},
       {
         offset: pageOptions.page * pageOptions.limit,
-        // limit: 1,
+        limit: pageOptions.limit,
       }
     );
-    console.log(listings, 'listings')
     return res.status(200).json({
       message: 'apartments fetched successfully',
       apartments: { listings, ratingAvg },
