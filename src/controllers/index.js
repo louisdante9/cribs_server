@@ -13,6 +13,7 @@ import {
   createBooking,
   getAllAvailableBookingDate,
   getAllHomeOwnerBookings,
+  getAllUserBookings,
 } from './booking';
 import {
   createApartment,
@@ -45,6 +46,7 @@ export {
   deleteApartment,
   getAllBookingAsAdmin,
   getAllAvailableBookingDate,
+  getAllUserBookings,
   getAllHomeOwnerBookings,
   checkBookingAvailability,
   createBooking,

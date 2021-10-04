@@ -69,6 +69,10 @@ export const createApartment = async (req, res) => {
  */
 export const getAllApartments = async (req, res) => {
   try {
+    const pageOptions = {
+      page: parseInt(req.query.page, 10) || 0,
+      limit: parseInt(req.query.limit, 10) || 10,
+    };
     const ratingAvg = await Rating.aggregate([
       { $unwind: '$apartment' },
       {
@@ -79,7 +83,14 @@ export const getAllApartments = async (req, res) => {
       },
     ]);
 
-    const listings = await Apartment.find();
+    const listings = await Apartment.find(
+      {},
+      {
+        offset: pageOptions.page * pageOptions.limit,
+        // limit: 1,
+      }
+    );
+    console.log(listings, 'listings')
     return res.status(200).json({
       message: 'apartments fetched successfully',
       apartments: { listings, ratingAvg },

@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate';
 import timestampPlugin from './plugin/timestamp';
 
 const apartmentSchema = new Schema({
@@ -25,4 +26,6 @@ const apartmentSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
 });
 apartmentSchema.plugin(timestampPlugin);
+apartmentSchema.plugin(mongoosePaginate);
+
 module.exports = model('Apartment', apartmentSchema);
