@@ -71,7 +71,7 @@ export const getAllApartments = async (req, res) => {
   try {
     const pageOptions = {
       page: parseInt(req.query.page, 10) || 0,
-      limit: parseInt(req.query.limit, 10) || 10,
+      limit: parseInt(req.query.limit, 2) || 2,
     };
     const ratingAvg = await Rating.aggregate([
       { $unwind: '$apartment' },

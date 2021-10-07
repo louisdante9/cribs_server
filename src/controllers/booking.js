@@ -165,10 +165,23 @@ export const getAllHomeOwnerBookings = async (req, res) => {
 export const getAllUserBookings = async (req, res) => {
   try {
     const { userId } = req.params;
-    const bookings = await Booking.find({}).where('userId').equals(userId);
-    return res
-      .status(200)
-      .json({ message: 'apartments fetched successfully', bookings });
+    const pageOptions = {
+      page: parseInt(req.query.page, 10) || 0,
+      limit: parseInt(req.query.limit, 2) || 1,
+    };
+    const user = await Booking.find({}).where('userId').equals(userId);
+    if (!user) return res.status(400).json({ error: 'user not found' });
+    const bookings = await Booking.paginate(
+      {},
+      {
+        offset: pageOptions.page * pageOptions.limit,
+        limit: pageOptions.limit,
+      }
+    );
+    return res.status(200).json({
+      message: 'apartments fetched successfully',
+      bookings,
+    });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });

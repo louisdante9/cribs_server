@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate';
 import timestampPlugin from './plugin/timestamp';
 
 const favouriteSchema = new Schema({
@@ -6,4 +7,5 @@ const favouriteSchema = new Schema({
   apartment: { type: Schema.Types.ObjectId, ref: 'Apartment' },
 });
 favouriteSchema.plugin(timestampPlugin);
+favouriteSchema.plugin(mongoosePaginate);
 module.exports = model('Favorite', favouriteSchema);

@@ -39,12 +39,21 @@ export const createFavourite = async (req, res) => {
 export const getAllUserFavourites = async (req, res) => {
   try {
     const { userId } = req.params;
-    const favourites = await Favourite.find({ user: userId }).populate(
-      'apartment'
-    );
-    if (!favourites) {
+    const pageOptions = {
+      page: parseInt(req.query.page, 10) || 0,
+      limit: parseInt(req.query.limit, 2) || 1,
+    };
+    const user = await Favourite.find({ user: userId }).populate('apartment');
+    if (!user) {
       return res.status(404).send({ error: 'You have no favourite' });
     }
+    const favourites = await Favourite.paginate(
+      {},
+      {
+        offset: pageOptions.page * pageOptions.limit,
+        limit: pageOptions.limit,
+      }
+    );
     return res.status(200).send({
       message: 'favourites fetched successfully',
       favourites,
