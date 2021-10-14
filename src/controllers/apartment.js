@@ -15,7 +15,9 @@ export const createApartment = async (req, res) => {
   const {
     img,
     propertyName,
+    propertyGroup,
     propertyType,
+    privacyType,
     description,
     address,
     state,
@@ -34,7 +36,9 @@ export const createApartment = async (req, res) => {
     const instance = new Apartment({
       img,
       propertyName,
+      propertyGroup,
       propertyType,
+      privacyType,
       description,
       address,
       state,
@@ -71,7 +75,7 @@ export const getAllApartments = async (req, res) => {
   try {
     const pageOptions = {
       page: parseInt(req.query.page, 10) || 0,
-      limit: parseInt(req.query.limit, 10) || 10,
+      limit: parseInt(req.query.limit, 10) || 1,
     };
     const ratingAvg = await Rating.aggregate([
       { $unwind: '$apartment' },

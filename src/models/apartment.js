@@ -4,7 +4,9 @@ import timestampPlugin from './plugin/timestamp';
 
 const apartmentSchema = new Schema({
   propertyName: { type: String, required: true },
+  propertyGroup: { type: String, required: true },
   propertyType: { type: String, required: true },
+  privacyType: { type: String, required: true },
   description: { type: String, required: true },
   address: { type: String, required: true },
   state: { type: String, required: true },
@@ -23,7 +25,7 @@ const apartmentSchema = new Schema({
   longitude: { type: String, required: true },
   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
   bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
-  userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 });
 apartmentSchema.plugin(timestampPlugin);
 apartmentSchema.plugin(mongoosePaginate);

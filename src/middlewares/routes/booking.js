@@ -4,15 +4,15 @@ import {
   createBooking,
   getAllAvailableBookingDate,
   getAllHomeOwnerBookings,
-  getAllUserBookings
+  getAllUserBookings,
 } from '../../controllers';
 
 module.exports = (express) => {
   const router = express.Router();
 
   router.get('/', getAllBookingAsAdmin);
-  router.get('/home/:homeOwnerId', getAllHomeOwnerBookings);
-  router.get('/home/:userId', getAllUserBookings);
+  router.get('/host/:homeOwnerId', getAllHomeOwnerBookings);
+  router.get('/:userId', getAllUserBookings);
   router.post('/', async (req, res) => {
     await createBooking(req, res);
   });

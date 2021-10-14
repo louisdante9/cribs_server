@@ -145,8 +145,9 @@ export const getAllHomeOwnerBookings = async (req, res) => {
   try {
     const { homeOwnerId } = req.params;
     const bookings = await Booking.find({})
-      .where('homeOwnerId')
-      .equals(homeOwnerId);
+    .where('homeOwnerId')
+    .equals(homeOwnerId);
+    console.log(bookings, 'helllo there')
     return res
       .status(200)
       .json({ message: 'apartments fetched successfully', bookings });

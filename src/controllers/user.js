@@ -1,5 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 // import gravatar from 'gravatar';
+import rn from 'random-number';
 import rcg from 'referral-code-generator';
 import User from '../models/user';
 import Apartment from '../models/apartment';
@@ -50,6 +51,12 @@ export const login = async (userCred, res, role) => {
 };
 
 export const register = async (userCred, res, role) => {
+  const options = {
+    min: 10000,
+    max: 99000,
+    integer: true,
+  };
+  const gen = rn(options);
   const { email } = userCred;
   let userObj;
   const userFound = await User.findOne({ email: email.trim().toLowerCase() });
@@ -65,20 +72,20 @@ export const register = async (userCred, res, role) => {
     userObj = {
       ...userCred,
       activated: true,
-      activationCode: uuidv4(),
+      activationCode: gen,
       role,
     };
   } else if (role === 'agent') {
     userObj = {
       ...userCred,
       referralCode: rcg.alpha('lowercase', 12),
-      activationCode: uuidv4(),
+      activationCode: gen,
       role,
     };
   } else {
     userObj = {
       ...userCred,
-      activationCode: uuidv4(),
+      activationCode: gen,
       referralCode: rcg.alpha('lowercase', 12),
       role,
     };
