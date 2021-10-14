@@ -50,7 +50,7 @@ export const createBooking = async (req, res) => {
         }
       );
       return res.status(200).json({
-        message: 'apartment was created successfully',
+        message: 'Booking was made successfully',
         booking,
       });
     }
@@ -144,10 +144,9 @@ export const getAllAvailableBookingDate = async (req, res) => {
 export const getAllHomeOwnerBookings = async (req, res) => {
   try {
     const { homeOwnerId } = req.params;
-    const bookings = await Booking.find({})
-    .where('homeOwnerId')
-    .equals(homeOwnerId);
-    console.log(bookings, 'helllo there')
+    const bookings = await Booking.find({ userId: homeOwnerId })
+      .populate('apartmentId')
+      .populate('userId', 'firstname lastname email');
     return res
       .status(200)
       .json({ message: 'apartments fetched successfully', bookings });
