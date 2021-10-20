@@ -5,6 +5,7 @@ import {
   getAllApartments,
   updateApartment,
   deleteApartment,
+  searchAllApartements,
 } from '../../controllers';
 
 module.exports = (express) => {
@@ -12,6 +13,9 @@ module.exports = (express) => {
 
   router.get('/', async (req, res) => {
     await getAllApartments(req, res);
+  });
+  router.get('/search', async (req, res) => {
+    await searchAllApartements(req, res);
   });
   router.post('/', async (req, res) => {
     await createApartment(req, res);

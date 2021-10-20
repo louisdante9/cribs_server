@@ -2,7 +2,7 @@ import {
   getAllFavourites,
   createFavourite,
   deleteFavourite,
-  getAllUserFavourites,
+  getAllUserFavouritesPaginate,
 } from '../../controllers';
 
 module.exports = (express) => {
@@ -12,7 +12,7 @@ module.exports = (express) => {
     await getAllFavourites(req, res);
   });
   router.get('/:userId', async (req, res) => {
-    await getAllUserFavourites(req, res);
+    await getAllUserFavouritesPaginate(req, res);
   });
   router.post('/add-favourite', async (req, res) => {
     await createFavourite(req, res);

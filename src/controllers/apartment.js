@@ -2,6 +2,7 @@ import Apartment from '../models/apartment';
 import History from '../models/history';
 import Rating from '../models/rating';
 import Favourite from '../models/favourite';
+// import Review from '../models/review';
 import { logger } from '../utils';
 
 const AGENT_DISCOUNT = 7.5;
@@ -136,7 +137,7 @@ export const getOneApartment = async (req, res) => {
   try {
     const apartment = await Apartment.findOne({
       _id: apartmentId,
-    }).populate('ratings', '-_id rating user');
+    }).populate('ratings', '-_id rating user', 'reviews');
     if (!apartment) {
       return res.status(404).send({ message: 'No apartment found' });
     }
@@ -218,6 +219,55 @@ export const deleteApartment = async (req, res) => {
     }
     const delApartment = await Apartment.deleteOne({ _id: req.params.id });
     return res.status(202).send({ message: 'Apartment deleted', delApartment });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).send({ error: 'something went wrong' });
+  }
+};
+export const searchAllApartements = async (req, res) => {
+  try {
+    const ratingAvg = await Rating.aggregate([
+      { $unwind: '$apartment' },
+      {
+        $group: {
+          _id: '$apartment',
+          rating: { $avg: '$rating' },
+        },
+      },
+    ]);
+    const name = req.query.name || '';
+    const type = req.query.type || '';
+    const city = req.query.city || '';
+    const amenities = req.query.amenities || '';
+    const min =
+      req.query.min && Number(req.query.min) !== 0 ? Number(req.query.min) : 0;
+    const max =
+      req.query.max && Number(req.query.max) !== 0 ? Number(req.query.max) : 0;
+    const typeFilter = type
+      ? { propertyType: { $regex: type, $options: 'i' } }
+      : {};
+
+    const nameFilter = name
+      ? { propertyName: { $regex: name, $options: 'i' } }
+      : {};
+    const cityFilter = city ? { city: { $regex: city, $options: 'i' } } : {};
+    const amenitiesFilter = amenities
+      ? { amenities: { $regex: amenities, $options: 'i' } }
+      : {};
+    const priceFilter =
+      min && max ? { pricePerNight: { $gte: min, $lte: max } } : {};
+
+    const listings = await Apartment.find({
+      ...nameFilter,
+      ...typeFilter,
+      ...cityFilter,
+      ...amenitiesFilter,
+      ...priceFilter,
+    });
+    return res.status(200).json({
+      message: 'apartments fetched successfully',
+      apartments: { listings, ratingAvg },
+    });
   } catch (error) {
     logger.error(error);
     return res.status(500).send({ error: 'something went wrong' });

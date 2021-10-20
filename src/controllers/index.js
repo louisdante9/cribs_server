@@ -22,14 +22,16 @@ import {
   updateApartment,
   getOneApartment,
   deleteApartment,
+  searchAllApartements,
 } from './apartment';
 import {
   createFavourite,
   deleteFavourite,
   getAllFavourites,
-  getAllUserFavourites,
+  getAllUserFavouritesPaginate,
 } from './favourite';
 import { createRating, getAllRating } from './rating';
+import { createReview, getAllReviews } from './review';
 
 export {
   register,
@@ -56,5 +58,8 @@ export {
   createFavourite,
   deleteFavourite,
   getAllFavourites,
-  getAllUserFavourites,
+  getAllUserFavouritesPaginate,
+  searchAllApartements,
+  createReview,
+  getAllReviews,
 };

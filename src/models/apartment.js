@@ -25,8 +25,10 @@ const apartmentSchema = new Schema({
   longitude: { type: String, required: true },
   ratings: [{ type: Schema.Types.ObjectId, ref: 'Rating' }],
   bookings: [{ type: Schema.Types.ObjectId, ref: 'Booking' }],
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User' },
+  reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
 });
+// apartmentSchema.index({ '$**': 'text' });
 apartmentSchema.plugin(timestampPlugin);
 apartmentSchema.plugin(mongoosePaginate);
 
