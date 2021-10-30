@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate';
 import timestampPlugin from './plugin/timestamp';
 
 const bookingSchema = new Schema({
@@ -17,5 +18,6 @@ const bookingSchema = new Schema({
   },
 });
 bookingSchema.plugin(timestampPlugin);
+bookingSchema.plugin(mongoosePaginate);
 // create the model for transaction and expose it to our app
 module.exports = model('Booking', bookingSchema);

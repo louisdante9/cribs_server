@@ -75,7 +75,7 @@ export const getAllApartments = async (req, res) => {
   try {
     const pageOptions = {
       page: parseInt(req.query.page, 10) || 0,
-      limit: parseInt(req.query.limit, 10) || 1,
+      limit: parseInt(req.query.limit, 10) || 2,
     };
     const ratingAvg = await Rating.aggregate([
       { $unwind: '$apartment' },
@@ -136,7 +136,10 @@ export const getOneApartment = async (req, res) => {
   try {
     const apartment = await Apartment.findOne({
       _id: apartmentId,
-    }).populate('ratings', '-_id rating user');
+    })
+      .populate('ratings', '-_id rating user')
+      .populate('reviews', '-_id review user');
+
     if (!apartment) {
       return res.status(404).send({ message: 'No apartment found' });
     }

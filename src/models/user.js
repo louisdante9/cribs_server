@@ -37,13 +37,37 @@ const userSchema = new Schema({
   dob: {
     type: String,
   },
+  address: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
   state: {
     type: String,
   },
   country: {
     type: String,
   },
-  age: {
+  postCode: {
+    type: Number,
+  },
+  placeOfBirth: {
+    type: String,
+  },
+  nin: {
+    type: Number,
+  },
+  tin: {
+    type: String,
+  },
+  bank: {
+    type: String,
+  },
+  accountName: {
+    type: String,
+  },
+  accountNumber: {
     type: Number,
   },
   role: {
