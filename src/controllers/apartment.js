@@ -142,10 +142,8 @@ export const getOneApartment = async (req, res) => {
     }
     const visits = await History.find({})
       .where('apartment')
-      // eslint-disable-next-line no-underscore-dangle
-      .equals(apartment._id)
+      .equals(apartmentId)
       .where('user')
-      // eslint-disable-next-line no-underscore-dangle
       .equals(userId);
 
     const favourite = await Favourite.find({})
