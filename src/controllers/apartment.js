@@ -75,7 +75,7 @@ export const getAllApartments = async (req, res) => {
   try {
     const pageOptions = {
       page: parseInt(req.query.page, 10) || 0,
-      limit: parseInt(req.query.limit, 10) || 1,
+      limit: parseInt(req.query.limit, 10) || 10,
     };
     const ratingAvg = await Rating.aggregate([
       { $unwind: '$apartment' },
@@ -104,16 +104,27 @@ export const getAllApartments = async (req, res) => {
   }
 };
 /**
- * get all apartment
- * action can only be done by admin
+ * get Home owner apartment
+ * action can only be done by home
  * @param {any} req request object
  * @param {any} res response object
  * @return {void}
  */
 export const getAllUserApartments = async (req, res) => {
+  const pageOptions = {
+    page: parseInt(req.query.page, 10) || 0,
+    limit: parseInt(req.query.limit, 10) || 10,
+  };
   try {
     const { userId } = req.params;
-    const listings = await Apartment.find({}).where('userId').equals(userId);
+    const listings = await Apartment.paginate(
+      { userId },
+      {
+        offset: pageOptions.page * pageOptions.limit,
+        limit: pageOptions.limit,
+      }
+    );
+    // .where('userId').equals(userId);
     return res.status(200).json({
       message: 'apartments fetched successfully',
       apartments: { listings },
