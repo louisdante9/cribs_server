@@ -30,6 +30,11 @@ import {
   getAllUserFavourites,
 } from './favourite';
 import { createRating, getAllRating } from './rating';
+import {
+  createPayment,
+  getAllUserPayments,
+  getOneUserPayment,
+} from './payments';
 
 export {
   register,
@@ -57,4 +62,7 @@ export {
   deleteFavourite,
   getAllFavourites,
   getAllUserFavourites,
+  createPayment,
+  getAllUserPayments,
+  getOneUserPayment,
 };
