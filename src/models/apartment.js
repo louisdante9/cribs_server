@@ -11,6 +11,7 @@ const apartmentSchema = new Schema({
   address: { type: String, required: true },
   state: { type: String, required: true },
   city: { type: String, required: true },
+  country: { type: String, required: true },
   zipCode: { type: String, required: true },
   noOfRooms: { type: Number, required: true },
   noOfBaths: { type: Number, required: true },

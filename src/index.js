@@ -10,6 +10,7 @@ import {
   apartmentRoute,
   ratingRoute,
   favouriteRoute,
+  paymentRoute,
 } from './middlewares/routes';
 import { GlobalErrorHandler } from './middlewares';
 import { job } from './utils/jobs';
@@ -30,6 +31,7 @@ db(config)
     app.use('/apartment', apartmentRoute(express));
     app.use('/rating', ratingRoute(express));
     app.use('/favourite', favouriteRoute(express));
+    app.use('/payment', paymentRoute(express));
     app.post('/check', (req, res) => {
       res.send('this is working');
     });
