@@ -1,3 +1,4 @@
+import moment from 'moment';
 import Apartment from '../models/apartment';
 import Booking from '../models/booking';
 import History from '../models/history';
@@ -25,8 +26,8 @@ export const createBooking = async (req, res) => {
       transactionId,
       amount,
       userId,
-      startDate,
-      endDate,
+      startDate: moment(startDate).add(12, 'hours').format(),
+      endDate: moment(endDate).add(36, 'hours').format(),
       homeOwnerId: apartment.userId,
     });
     const historyInstance = new History({

@@ -12,12 +12,16 @@ import {
   favouriteRoute,
 } from './middlewares/routes';
 import { GlobalErrorHandler } from './middlewares';
+import { job } from './utils/jobs';
 
 const app = express();
 const port = parseInt(process.env.PORT, 10) || 9000;
 app.use(cors());
 app.use(json());
 app.use(urlencoded({ extended: false }));
+
+// run cron job;
+job();
 
 db(config)
   .then(() => {
