@@ -27,6 +27,7 @@ const disableBookings = async (today) => {
 };
 
 export const job = async () =>
+// Scheduler should run at exact 12 mid day....
   schedule.scheduleJob('0 12 * * *', async () => {
     const today = moment();
     await disableBookings(today);
